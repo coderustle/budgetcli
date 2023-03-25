@@ -1,4 +1,5 @@
 pytest
+pytest-cov
 python-dotenv
 google-auth
 google-auth-httplib2
