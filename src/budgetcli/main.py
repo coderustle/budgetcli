@@ -1,22 +1,19 @@
-
-import configparser
-
 import typer
 
-
-# init config parser
-config = configparser.ConfigParser()
+from .commands import config
 
 # init typer app
-cli = typer.Typer()
+app = typer.Typer()
 
-@cli.command()
-def init() -> None:
-    """Initialize the application"""
-    print("Init app")
-    
+# register commands
+app.add_typer(config.app, name="config")
 
-@cli.command()
-def run() -> None:
-    """Run the application"""
-    print("Run app")
+
+@app.callback(invoke_without_command=True)
+def main(ctx: typer.Context) -> None:
+    if ctx.invoked_subcommand is None:
+        ctx.get_help()
+
+
+if __name__ == "__main__":
+    app()
