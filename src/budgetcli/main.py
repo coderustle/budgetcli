@@ -1,11 +1,22 @@
 
-from dotenv import load_dotenv
+import configparser
 
-# load .env file
-load_dotenv()
+import typer
 
-def main() -> None:
-    print("Hello World")
 
-if __name__ == "__main__":
-    main()
+# init config parser
+config = configparser.ConfigParser()
+
+# init typer app
+cli = typer.Typer()
+
+@cli.command()
+def init() -> None:
+    """Initialize the application"""
+    print("Init app")
+    
+
+@cli.command()
+def run() -> None:
+    """Run the application"""
+    print("Run app")

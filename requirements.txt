@@ -1,8 +1,7 @@
-click
-pytest
-pytest-cov
-python-dotenv
+typer[all]
 google-auth
 google-auth-httplib2
 google-api-python-client
+pytest
+pytest-cov
 
