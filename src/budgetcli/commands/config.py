@@ -9,10 +9,12 @@ import typer
 from rich import print
 
 from ..settings import (
-    CONFIG_FILE_PATH,
     CREDENTIALS_SECRET_PATH,
     USER_CONFIG_DIR,
 )
+
+from ..utils import update_config
+
 
 app = typer.Typer()
 
@@ -21,34 +23,28 @@ app = typer.Typer()
 def spreadsheet(spreadsheet_id: str) -> None:
     """Provide the google spreadsheet id to be used and store data"""
 
-    if os.path.exists(CONFIG_FILE_PATH):
-        config: dict
-
-        # load the current file if exists and update spreadsheet id
-        with open(CONFIG_FILE_PATH) as file:
-            config = json.load(file)
-            config["spreadsheet_id"] = spreadsheet_id
-
-        # write the updated data to config.json
-        with open(CONFIG_FILE_PATH, "w") as file:
-            json.dump(config, file, indent=2)
-        print(":heavy_check_mark: Spreadsheet id was updated")
-
-    else:
-        # create and write the data to config.json
-        config = {"spreadsheet_id": spreadsheet_id}
-
-        with open(CONFIG_FILE_PATH, "w") as file:
-            json.dump(config, file, indent=2)
-
-        print(":heavy_check_mark: Spreadsheet id was created")
+    update_config("spreadsheet_id", spreadsheet_id)
 
 
 @app.command()
-def secret(path: str) -> None:
+def client(client_id: str) -> None:
+    """Provide the OAuth 2.0 client id"""
+
+    update_config("client_id", client_id)
+
+
+@app.command()
+def secret(secret: str) -> None:
+    """Provide the OAuth 2.0 client id"""
+
+    update_config("secret", secret)
+
+
+@app.command()
+def credentials(path: str) -> None:
     """
-    Provide the absolute client_secret.json
-    path to be copied in config folder
+    Provide the absolute path to client_secret.json file
+    to be copied in app config folder
     """
 
     # check if the provided path exists

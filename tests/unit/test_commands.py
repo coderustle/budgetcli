@@ -37,7 +37,6 @@ class TestConfigCommand:
         assert result.exit_code == 2
         assert "Missing argument 'SPREADSHEET_ID'" in result.stdout
 
-
     def test_spreadsheet_cmd_with_spreadsheet_id(self, runner):
         """
         Test config spreadsheet command with spreadsheet id argument
