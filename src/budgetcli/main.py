@@ -1,12 +1,14 @@
 import typer
 
 from .commands import config
+from .commands import auth
 
 # init typer app
 app = typer.Typer()
 
 # register commands
 app.add_typer(config.app, name="config")
+app.add_typer(auth.app, name="auth")
 
 
 @app.callback(invoke_without_command=True)

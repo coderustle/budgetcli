@@ -30,3 +30,15 @@ def update_config(setting: str, value: str) -> None:
             json.dump(config, file, indent=2)
 
     print(f":heavy_check_mark: {setting} was updated")
+
+
+def get_config(setting: str) -> str | None:
+    """Utility function to retrieve a setting from config.json"""
+
+    if os.path.exists(CONFIG_FILE_PATH):
+        config: dict
+
+        with open(CONFIG_FILE_PATH) as file:
+            config = json.load(file)
+
+        return config.get(setting)

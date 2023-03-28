@@ -1,7 +1,6 @@
 """
 This module contains the config command
 """
-import json
 import os
 import shutil
 
