@@ -1,8 +1,8 @@
 typer[all]
-google - auth
-google - auth - httplib2
-google - api - python - client
+google-auth
+google-auth-httplib2
+google-api-python-client
 pytest
-pytest - cov
+pytest-cov
 platformdirs
 black

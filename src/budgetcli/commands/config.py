@@ -32,6 +32,7 @@ def spreadsheet(spreadsheet_id: str) -> None:
         # write the updated data to config.json
         with open(CONFIG_FILE_PATH, "w") as file:
             json.dump(config, file, indent=2)
+        print(":heavy_check_mark: Spreadsheet id was updated")
 
     else:
         # create and write the data to config.json
@@ -40,7 +41,7 @@ def spreadsheet(spreadsheet_id: str) -> None:
         with open(CONFIG_FILE_PATH, "w") as file:
             json.dump(config, file, indent=2)
 
-    print(":heavy_check_mark: Spreadsheet id was updated")
+        print(":heavy_check_mark: Spreadsheet id was created")
 
 
 @app.command()
