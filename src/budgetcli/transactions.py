@@ -6,18 +6,21 @@ from enum import Enum
 from dataclasses import dataclass
 from datetime import date
 
-class TransactionType(Enum):
+
+class RecordType(Enum):
     INCOME = 1
     OUTCOME = 2
 
+
 @dataclass
-class Transaction:
-    """
-    This object represents a transaction entry
-    """
-    tr_type: TransactionType
-    tr_date: date
+class Record:
+    entry_type: RecordType
+    entry_date: date
     category: str
     description: str
     amount: float
 
+
+class Transaction:
+    def __init__(self, entry: Record):
+        self.entry = entry
