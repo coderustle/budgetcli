@@ -17,6 +17,7 @@ from ..utils import update_config, list_config
 
 app = typer.Typer()
 
+
 @app.command()
 def config_list():
     """List all the settings from config.json"""
@@ -24,12 +25,12 @@ def config_list():
     list_config()
 
 
-
 @app.command()
 def spreadsheet(spreadsheet_id: str) -> None:
     """Provide the google spreadsheet id to be used and store data"""
 
     update_config("spreadsheet_id", spreadsheet_id)
+
 
 @app.command()
 def credentials(path: str) -> None:
