@@ -2,8 +2,24 @@ import os
 import json
 
 from rich import print
+from rich.pretty import pprint
 
 from .settings import CONFIG_FILE_PATH
+
+
+def list_config():
+    """Utility function to list all the settings from config.json"""
+
+    if os.path.exists(CONFIG_FILE_PATH):
+        config: dict
+
+        with open(CONFIG_FILE_PATH) as file:
+            config = json.load(file)
+
+        pprint(config, expand_all=True)
+
+    else:
+        print(":x: No config.json was found")
 
 
 def update_config(setting: str, value: str) -> None:

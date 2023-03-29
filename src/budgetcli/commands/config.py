@@ -12,10 +12,17 @@ from ..settings import (
     USER_CONFIG_DIR,
 )
 
-from ..utils import update_config
+from ..utils import update_config, list_config
 
 
 app = typer.Typer()
+
+@app.command()
+def config_list():
+    """List all the settings from config.json"""
+
+    list_config()
+
 
 
 @app.command()
@@ -23,21 +30,6 @@ def spreadsheet(spreadsheet_id: str) -> None:
     """Provide the google spreadsheet id to be used and store data"""
 
     update_config("spreadsheet_id", spreadsheet_id)
-
-
-@app.command()
-def client(client_id: str) -> None:
-    """Provide the OAuth 2.0 client id"""
-
-    update_config("client_id", client_id)
-
-
-@app.command()
-def secret(secret: str) -> None:
-    """Provide the OAuth 2.0 client id"""
-
-    update_config("secret", secret)
-
 
 @app.command()
 def credentials(path: str) -> None:
@@ -49,6 +41,8 @@ def credentials(path: str) -> None:
     # check if the provided path exists
     if os.path.isfile(path):
         shutil.copy(path, CREDENTIALS_SECRET_PATH)
+        update_config("client_secret", CREDENTIALS_SECRET_PATH)
+
         print(f":heavy_check_mark: File copied succesfuly to {USER_CONFIG_DIR}")
     else:
         print(f':x: The provided file path to "{path}" is not correct')
