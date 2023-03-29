@@ -51,7 +51,11 @@ def load_user_token() -> Credentials | None:
         )
 
         if not credentials or not credentials.valid:
-            if credentials and credentials.expired and credentials.refresh_token:
+            if (
+                credentials
+                and credentials.expired
+                and credentials.refresh_token
+            ):
                 credentials.refresh(Request())
             else:
                 return None
