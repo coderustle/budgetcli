@@ -15,10 +15,10 @@ from google_auth_oauthlib.flow import InstalledAppFlow
 from .settings import AUTH_TOKEN_PATH, SCOPES, CREDENTIALS_SECRET_PATH
 
 
-def get_user_authorization() -> ExCredentials | None:
+def get_user_authorization() -> ExCredentials | Credentials | None:
     """This function is used to get the user data authorization"""
 
-    credentials: ExCredentials | None = None
+    credentials: Credentials | ExCredentials | None = None
 
     # if token.json is not there, let the user login
     if os.path.isfile(CREDENTIALS_SECRET_PATH):
@@ -30,8 +30,6 @@ def get_user_authorization() -> ExCredentials | None:
 
         with open(AUTH_TOKEN_PATH, "w") as file:
             file.write(credentials.to_json())
-
-        return credentials
 
     else:
         print(":x: The client_secret.json file is missing")
@@ -60,6 +58,6 @@ def load_user_token() -> Credentials | None:
             else:
                 return None
 
-        return credentials.token
+        return credentials
 
     return None
