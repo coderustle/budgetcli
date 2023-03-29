@@ -15,17 +15,10 @@ from google_auth_oauthlib.flow import InstalledAppFlow
 from .settings import AUTH_TOKEN_PATH, SCOPES, CREDENTIALS_SECRET_PATH
 
 
-def get_credentials() -> Credentials | ExCredentials | None:
+def get_user_authorization() -> ExCredentials | None:
     """This function is used to get the user data authorization"""
 
-    credentials: Credentials | ExCredentials | None = None
-
-    # check if token.json exists in the app config dir
-    if os.path.exists(AUTH_TOKEN_PATH):
-        credentials = Credentials.from_authorized_user_file(
-            AUTH_TOKEN_PATH, SCOPES
-        )
-        return credentials
+    credentials: ExCredentials | None = None
 
     # if token.json is not there, let the user login
     if os.path.isfile(CREDENTIALS_SECRET_PATH):
@@ -44,3 +37,25 @@ def get_credentials() -> Credentials | ExCredentials | None:
         print(":x: The client_secret.json file is missing")
 
     return credentials
+
+
+def load_user_token() -> Credentials | None:
+    """This function is used to get the user data authorization"""
+
+    credentials: Credentials | None = None
+
+    # check if token.json exists in the app config dir
+    if os.path.exists(AUTH_TOKEN_PATH):
+        credentials = Credentials.from_authorized_user_file(
+            AUTH_TOKEN_PATH, SCOPES
+        )
+
+        if not credentials or not credentials.valid:
+            if credentials and credentials.expired and credentials.refresh_token:
+                credentials.refresh(Request())
+            else:
+                return None
+
+        return credentials.token
+
+    return None
