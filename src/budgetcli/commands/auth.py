@@ -4,7 +4,7 @@ This module contains the command to authorize the user data in google.
 
 import typer
 
-from ..credentials import get_user_authorization
+from ..auth import get_user_authorization
 
 
 app = typer.Typer()
