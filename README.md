@@ -1,6 +1,6 @@
 # My Budget CLI
 
-A simple Python terminal app to manage budgets and expenses in Google Sheet.
+A simple terminal app written in Python to manage budgets and expenses in Google Sheet.
 
 ## Installation
 
