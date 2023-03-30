@@ -34,7 +34,7 @@ budgetcli auth
 
 **Init sheet tables headers**
 ```
-budgetcli auth
+budgetcli init
 ```
 
 
