@@ -16,7 +16,7 @@ from ..utils import get_config_list, update_config
 app = typer.Typer()
 
 
-@app.command()
+@app.command(name="list")
 def list_config():
     """List all the settings from config.json"""
 
@@ -49,6 +49,7 @@ def credentials(path: str) -> None:
 
 @app.callback(invoke_without_command=True)
 def main(ctx: typer.Context) -> None:
+    """Manage the configuration of the app"""
     if ctx.invoked_subcommand is None:
         ctx.get_help()
 

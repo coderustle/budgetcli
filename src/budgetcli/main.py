@@ -1,14 +1,31 @@
 import typer
+from rich import print
 
-from .commands import config
-from .commands import auth
+from .auth import get_user_authorization
+from .commands import add, config
+from .data_manager import GoogleSheetManager
 
 # init typer app
 app = typer.Typer()
 
 # register commands
 app.add_typer(config.app, name="config")
-app.add_typer(auth.app, name="auth")
+app.add_typer(add.app, name="add")
+
+
+@app.command()
+def auth():
+    """Authorize the app to use the user data"""
+    get_user_authorization()
+
+
+@app.command()
+def init():
+    """Init the tables in the google sheet"""
+    manager = GoogleSheetManager()
+
+    manager.init_sheets()
+    print(":heavy_check_mark: Tables initialized succesfuly")
 
 
 @app.callback(invoke_without_command=True)
