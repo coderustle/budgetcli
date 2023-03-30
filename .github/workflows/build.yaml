@@ -24,7 +24,3 @@ jobs:
           pip install --upgrade pipx
           pipx install build
 
-      - name: Build
-        run: |
-          pyproject-build
-
