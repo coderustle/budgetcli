@@ -14,22 +14,22 @@ Please follow the following link for more details: [Authorize credentials for a 
 
 Before start adding transactions and data, you need to do the following steps:
 
-### Provide the google sheet id
+**Provide the google sheet id**
 ```
 budgetcli config spreadsheet ID
 ```
 
-### Copy the credentials_json.secret to app config
+**Copy the credentials_json.secret to app config**
 ```
 budgetcli config /path/to/client_secret.json
 ```
 
-### Authorize the app access to sheet data
+**Authorize the app access to sheet data**
 ```
 budgetcli auth
 ```
 
-### Init sheet tables headers
+**Init sheet tables headers**
 ```
 budgetcli auth
 ```
