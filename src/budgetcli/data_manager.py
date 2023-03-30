@@ -51,4 +51,4 @@ class GoogleSheetManager:
                 )
                 .execute()
             )
-            pprint(result, expand=True)
+            pprint(result, expand_all=True)

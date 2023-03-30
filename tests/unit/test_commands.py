@@ -1,8 +1,7 @@
 import pytest
-from typer.testing import CliRunner
-
-
 from budgetcli.commands import config
+from budgetcli.utils import get_config
+from typer.testing import CliRunner
 
 
 @pytest.fixture(scope="session", autouse=True)
@@ -42,5 +41,8 @@ class TestConfigCommand:
         Test config spreadsheet command with spreadsheet id argument
         passed.
         """
-        result = runner.invoke(config.app, ["spreadsheet", "id"])
+        spreadsheet_id = get_config("spreadsheet_id")
+        if spreadsheet_id is None:
+            spreadsheet_id = "SPREADSHEET_ID"
+        result = runner.invoke(config.app, ["spreadsheet", spreadsheet_id])
         assert result.exit_code == 0
