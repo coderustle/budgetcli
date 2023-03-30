@@ -1,6 +1,6 @@
 from unittest.mock import patch
 
-from budgetcli.data_manager import get_authenticated_service, GoogleSheetManager
+from budgetcli.data_manager import GoogleSheetManager, get_authenticated_service
 
 
 def test_authenticated_service():
@@ -29,3 +29,10 @@ def test_google_sheet_manager_instance():
 
     assert sheet_manager is not None
     assert isinstance(sheet_manager, GoogleSheetManager)
+
+
+def test_init_sheet_tables():
+    """Test init_sheet_tables method"""
+
+    sheet_manager = GoogleSheetManager()
+    sheet_manager.init_sheet_tables()

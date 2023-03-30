@@ -1,13 +1,13 @@
 from typing import Any
 
+import typer
+from google.oauth2.credentials import Credentials
 from googleapiclient.discovery import build
 from googleapiclient.errors import HttpError
-from google.oauth2.credentials import Credentials
+from rich.pretty import pprint
 
-import typer
-
-from .settings import API_VERSION, API_SERVICE_NAME
 from .auth import load_user_token
+from .settings import API_SERVICE_NAME, API_VERSION
 from .utils import get_config
 
 
@@ -18,7 +18,9 @@ def get_authenticated_service() -> Any:
 
     if credentials:
         try:
-            service = build(API_SERVICE_NAME, API_VERSION, credentials)
+            service = build(
+                API_SERVICE_NAME, API_VERSION, credentials=credentials
+            )
 
             return service.spreadsheets()
 
@@ -30,10 +32,8 @@ def get_authenticated_service() -> Any:
 
 
 class GoogleSheetManager:
-
     CATEGORIES_RANGE = "CATEGORIES!A1"
 
-    
     def __init__(self):
         self._sheet = get_authenticated_service()
 
@@ -41,9 +41,14 @@ class GoogleSheetManager:
         """Init tables in spreadsheet"""
         spreadsheet_id = get_config("spreadsheet_id")
         if spreadsheet_id:
-            result = self._sheet().values().get(
+            print(spreadsheet_id)
+            print(self._sheet)
+            result = (
+                self._sheet.values()
+                .get(
                     spreadsheetId=spreadsheet_id,
                     range=self.CATEGORIES_RANGE,
-                    ).execute()
-            print(result)
-        
+                )
+                .execute()
+            )
+            pprint(result, expand=True)
