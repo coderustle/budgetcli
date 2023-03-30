@@ -11,18 +11,16 @@ from ..settings import (
     CREDENTIALS_SECRET_PATH,
     USER_CONFIG_DIR,
 )
-
-from ..utils import update_config, list_config
-
+from ..utils import get_config_list, update_config
 
 app = typer.Typer()
 
 
 @app.command()
-def config_list():
+def list_config():
     """List all the settings from config.json"""
 
-    list_config()
+    get_config_list()
 
 
 @app.command()

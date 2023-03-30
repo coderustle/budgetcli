@@ -1,5 +1,5 @@
-import os
 import json
+import os
 
 from rich import print
 from rich.pretty import pprint
@@ -7,7 +7,7 @@ from rich.pretty import pprint
 from .settings import CONFIG_FILE_PATH
 
 
-def list_config():
+def get_config_list():
     """Utility function to list all the settings from config.json"""
 
     if os.path.exists(CONFIG_FILE_PATH):
