@@ -1,4 +1,4 @@
-# Budget CLI
+# Budget CLI 🚧 - UNDER CONSTRUCTION
 
 [![Build](https://github.com/madalinpopa/budgetcli/actions/workflows/build.yaml/badge.svg)](https://github.com/madalinpopa/budgetcli/actions/workflows/build.yaml)
 
