@@ -20,9 +20,9 @@ jobs:
           python-version: 3.11
           cache: 'pip' # caching pip dependencies
       - run: |
-        pip install -r requirements.txt
-        pip install --upgrade pipx
-        pipx install build
+          pip install -r requirements.txt
+          pip install --upgrade pipx
+          pipx install build
 
       - name: Build
         run: |
