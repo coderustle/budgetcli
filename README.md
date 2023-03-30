@@ -15,6 +15,8 @@ In order to use the app you need first to enable Google Spreadsheet API and to g
 
 Please follow the following link for more details: [Authorize credentials for a desktop application](https://developers.google.com/sheets/api/quickstart/python)
 
+## Configuration
+
 Before start adding transactions and data, you need to do the following steps:
 
 **Provide the google spreadsheet id**
