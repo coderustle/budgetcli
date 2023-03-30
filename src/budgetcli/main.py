@@ -16,7 +16,12 @@ app.add_typer(add.app, name="add")
 @app.command()
 def auth():
     """Authorize the app to use the user data"""
-    get_user_authorization()
+    try:
+        get_user_authorization()
+        print(":heavy_check_mark: User authorized succesfuly")
+    except Exception as e:
+        print(":x: Error authorizing user")
+        print(e)
 
 
 @app.command()
@@ -24,8 +29,13 @@ def init():
     """Init the tables in the google sheet"""
     manager = GoogleSheetManager()
 
-    manager.init_sheets()
-    print(":heavy_check_mark: Tables initialized succesfuly")
+    manager.init_sheets_headers()
+    try:
+        manager.init_sheets_headers()
+        print(":heavy_check_mark: Table headers initialized succesfuly")
+    except Exception as e:
+        print(":x: Error initializing tables")
+        print(e)
 
 
 @app.callback(invoke_without_command=True)
