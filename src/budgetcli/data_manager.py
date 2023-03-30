@@ -4,7 +4,6 @@ import typer
 from google.oauth2.credentials import Credentials
 from googleapiclient.discovery import build
 from googleapiclient.errors import HttpError
-from rich.pretty import pprint
 
 from .auth import load_user_token
 from .settings import API_SERVICE_NAME, API_VERSION
@@ -32,23 +31,28 @@ def get_authenticated_service() -> Any:
 
 
 class GoogleSheetManager:
-    CATEGORIES_RANGE = "CATEGORIES!A1"
+    TRANSACTIONS_RANGE = "TRANSACTIONS!A1"
 
     def __init__(self):
         self._sheet = get_authenticated_service()
 
-    def init_sheet_tables(self):
+    def init_sheets(self):
+        """Init the spreadsheet"""
+        values = ["ID", "DATE", "CATEGORY", "DESCRIPTION", "INCOME", "OUTCOME"]
+        self._init_table("TRANSACTIONS!A1:E1", values)
+
+    def _init_table(self, range: str, headers: list[str]) -> dict | None:
         """Init tables in spreadsheet"""
         spreadsheet_id = get_config("spreadsheet_id")
         if spreadsheet_id:
-            print(spreadsheet_id)
-            print(self._sheet)
             result = (
                 self._sheet.values()
-                .get(
+                .update(
                     spreadsheetId=spreadsheet_id,
-                    range=self.CATEGORIES_RANGE,
+                    valueInputOption="USER_ENTERED",
+                    range=range,
+                    body={"values": [headers]},
                 )
                 .execute()
             )
-            pprint(result, expand_all=True)
+            return result

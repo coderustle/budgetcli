@@ -31,8 +31,13 @@ def test_google_sheet_manager_instance():
     assert isinstance(sheet_manager, GoogleSheetManager)
 
 
-def test_init_sheet_tables():
+def test_init_tables():
     """Test init_sheet_tables method"""
 
+    values = ["ID", "DATE", "CATEGORY", "DESCRIPTION", "AMOUNT"]
+    range = "TRANSACTIONS!A1:E1"
+
     sheet_manager = GoogleSheetManager()
-    sheet_manager.init_sheet_tables()
+    result = sheet_manager._init_table(range=range, headers=values)
+
+    assert result is not None
