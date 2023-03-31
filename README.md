@@ -26,7 +26,7 @@ budgetcli config spreadsheet ID
 
 **Copy the client_secret_XXX.json to app config**
 ```
-budgetcli config /path/to/client_secret.json
+budgetcli config credentials /path/to/client_secret.json
 ```
 
 **Authorize the app access to spreadsheet data**
