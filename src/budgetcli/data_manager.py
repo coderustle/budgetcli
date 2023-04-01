@@ -10,6 +10,57 @@ from .settings import API_SERVICE_NAME, API_VERSION
 from .utils import get_config
 
 
+class GoogleSheetManager:
+    TRANSACTIONS_HEADER = "TRANSACTIONS!A1:F1"
+    TRANSACTION_RANGE = "TRANSACTIONS!A2:F"
+
+    def __init__(self, spradsheet_id: str, service: Any):
+        self._spreadsheet_id = spradsheet_id
+        self._service = service
+
+    def init_sheets_headers(self):
+        """Init the spreadsheet"""
+        transaction_headers = [
+            "ID",
+            "DATE",
+            "CATEGORY",
+            "DESCRIPTION",
+            "INCOME",
+            "OUTCOME",
+        ]
+        self._init_table(self.TRANSACTIONS_HEADER, transaction_headers)
+
+    def _init_table(self, range: str, headers: list[str]) -> dict | None:
+        """Init tables in spreadsheet"""
+        if self._spreadsheet_id:
+            result = (
+                self._service.values()
+                .update(
+                    spreadsheetId=self._spreadsheet_id,
+                    valueInputOption="USER_ENTERED",
+                    range=range,
+                    body={"values": [headers]},
+                )
+                .execute()
+            )
+            return result
+
+    def add_transaction(self, row: list):
+        """Add a transaction to the spreadsheet"""
+        if self._spreadsheet_id:
+            result = (
+                self._service.values()
+                .append(
+                    spreadsheetId=self._spreadsheet_id,
+                    valueInputOption="USER_ENTERED",
+                    range=self.TRANSACTIONS_RANGE,
+                    body={"values": [row]},
+                )
+                .execute()
+            )
+            return result
+
+
 def get_authenticated_service() -> Any:
     """Build the google service with provided credentials"""
 
@@ -30,36 +81,8 @@ def get_authenticated_service() -> Any:
         typer.Exit()
 
 
-class GoogleSheetManager:
-    TRANSACTIONS_RANGE = "TRANSACTIONS!A1"
-
-    def __init__(self):
-        self._sheet = get_authenticated_service()
-
-    def init_sheets_headers(self):
-        """Init the spreadsheet"""
-        transaction_headers = [
-            "ID",
-            "DATE",
-            "CATEGORY",
-            "DESCRIPTION",
-            "INCOME",
-            "OUTCOME",
-        ]
-        self._init_table("TRANSACTIONS!A1:F1", transaction_headers)
-
-    def _init_table(self, range: str, headers: list[str]) -> dict | None:
-        """Init tables in spreadsheet"""
-        spreadsheet_id = get_config("spreadsheet_id")
-        if spreadsheet_id:
-            result = (
-                self._sheet.values()
-                .update(
-                    spreadsheetId=spreadsheet_id,
-                    valueInputOption="USER_ENTERED",
-                    range=range,
-                    body={"values": [headers]},
-                )
-                .execute()
-            )
-            return result
+def get_data_manager() -> GoogleSheetManager:
+    """Get the data manager"""
+    service = get_authenticated_service()
+    spreadsheet_id = get_config("spreadsheet_id")
+    return GoogleSheetManager(spreadsheet_id, service)

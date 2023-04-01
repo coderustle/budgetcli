@@ -3,34 +3,43 @@ This module contains the classes and functions to implement transactions
 """
 
 from dataclasses import dataclass
-from datetime import date
 from enum import Enum
 
+from .abstract import Command
 from .data_manager import GoogleSheetManager
 
 
-class RecordType(Enum):
-    INCOME = 1
-    OUTCOME = 2
+class TransactionType(Enum):
+    INCOME = "income"
+    OUTCOME = "outcome"
 
 
 @dataclass
-class Record:
-    entry_type: RecordType
-    entry_date: date
+class Transaction:
+    date: str
     category: str
     description: str
     amount: float
 
+    def __post_init__(self):
+        pass
 
-class Transaction:
-    def __init__(self, entry: Record, manager: GoogleSheetManager):
-        self.entry = entry
+    def to_list(self):
+        return [
+            self.date,
+            self.category,
+            self.description,
+            self.amount,
+        ]
+
+
+class AddTransactionCommand(Command):
+    def __init__(self, transaction: Transaction, manager: GoogleSheetManager):
+        self.transaction = transaction
+        self.manager = manager
+
+    def execute(self):
+        self.manager.add_transaction(self.transaction.to_list())
 
     def __str__(self):
-        entry_type = (
-            "INCOME"
-            if self.entry.entry_type == RecordType.INCOME
-            else "OUTCOME"
-        )
-        return f"{entry_type} - {self.entry.description} - {self.entry.amount}"
+        return f"Add transaction: {self.entry.description}"
