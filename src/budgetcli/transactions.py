@@ -2,9 +2,11 @@
 This module contains the classes and functions to implement transactions
 """
 
-from enum import Enum
 from dataclasses import dataclass
 from datetime import date
+from enum import Enum
+
+from .data_manager import GoogleSheetManager
 
 
 class RecordType(Enum):
@@ -22,5 +24,13 @@ class Record:
 
 
 class Transaction:
-    def __init__(self, entry: Record):
+    def __init__(self, entry: Record, manager: GoogleSheetManager):
         self.entry = entry
+
+    def __str__(self):
+        entry_type = (
+            "INCOME"
+            if self.entry.entry_type == RecordType.INCOME
+            else "OUTCOME"
+        )
+        return f"{entry_type} - {self.entry.description} - {self.entry.amount}"
