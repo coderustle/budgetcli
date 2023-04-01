@@ -4,15 +4,15 @@ to autorize the application and to initiate the user that authorization flow.
 """
 import os
 
-from rich import print
-from google.auth.transport.requests import Request
-from google.oauth2.credentials import Credentials
 from google.auth.external_account_authorized_user import (
     Credentials as ExCredentials,
 )
+from google.auth.transport.requests import Request
+from google.oauth2.credentials import Credentials
 from google_auth_oauthlib.flow import InstalledAppFlow
+from rich import print
 
-from .settings import AUTH_TOKEN_PATH, SCOPES, CREDENTIALS_SECRET_PATH
+from .settings import AUTH_TOKEN_PATH, CREDENTIALS_SECRET_PATH, SCOPES
 
 
 def get_user_authorization() -> ExCredentials | Credentials | None:

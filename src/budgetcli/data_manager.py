@@ -38,8 +38,15 @@ class GoogleSheetManager:
 
     def init_sheets_headers(self):
         """Init the spreadsheet"""
-        values = ["ID", "DATE", "CATEGORY", "DESCRIPTION", "INCOME", "OUTCOME"]
-        self._init_table("TRANSACTIONS!A1:F1", values)
+        transaction_headers = [
+            "ID",
+            "DATE",
+            "CATEGORY",
+            "DESCRIPTION",
+            "INCOME",
+            "OUTCOME",
+        ]
+        self._init_table("TRANSACTIONS!A1:F1", transaction_headers)
 
     def _init_table(self, range: str, headers: list[str]) -> dict | None:
         """Init tables in spreadsheet"""

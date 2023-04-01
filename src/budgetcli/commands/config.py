@@ -37,7 +37,6 @@ def credentials(path: str) -> None:
     to be copied in app config folder
     """
 
-    # check if the provided path exists
     if os.path.isfile(path):
         shutil.copy(path, CREDENTIALS_SECRET_PATH)
         update_config("client_secret", CREDENTIALS_SECRET_PATH)
