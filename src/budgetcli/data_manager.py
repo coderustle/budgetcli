@@ -7,7 +7,7 @@ from googleapiclient.errors import HttpError
 
 from .auth import load_user_token
 from .settings import API_SERVICE_NAME, API_VERSION
-from .utils import get_config
+from .utils.config import get_config
 
 
 class GoogleSheetManager:

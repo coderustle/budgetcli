@@ -11,7 +11,7 @@ from ..settings import (
     CREDENTIALS_SECRET_PATH,
     USER_CONFIG_DIR,
 )
-from ..utils import get_config_list, update_config
+from ..utils.config import get_config_list, update_config
 
 app = typer.Typer()
 

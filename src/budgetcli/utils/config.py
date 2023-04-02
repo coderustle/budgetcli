@@ -4,7 +4,7 @@ import os
 from rich import print
 from rich.pretty import pprint
 
-from .settings import CONFIG_FILE_PATH
+from ..settings import CONFIG_FILE_PATH
 
 
 def get_config_list():
