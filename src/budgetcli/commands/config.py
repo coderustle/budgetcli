@@ -24,14 +24,20 @@ def list_config():
 
 
 @app.command()
-def spreadsheet(spreadsheet_id: str) -> None:
+def spreadsheet_id(
+    spreadsheet_id: str = typer.Argument(..., help="The google spreadsheet id")
+) -> None:
     """Provide the google spreadsheet id to be used and store data"""
 
     update_config("spreadsheet_id", spreadsheet_id)
 
 
 @app.command()
-def credentials(path: str) -> None:
+def credentials_path(
+    path: str = typer.Argument(
+        ..., help="The absolute path to client_secret.json"
+    )
+) -> None:
     """
     Provide the absolute path to client_secret.json file
     to be copied in app config folder

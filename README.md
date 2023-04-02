@@ -21,12 +21,12 @@ Before start adding transactions and data, you need to do the following steps:
 
 **Provide the google spreadsheet id**
 ```
-budgetcli config spreadsheet ID
+budgetcli config spreadsheet-id ID
 ```
 
 **Copy the client_secret_XXX.json to app config**
 ```
-budgetcli config credentials /path/to/client_secret.json
+budgetcli config credentials-path /path/to/client_secret.json
 ```
 
 **Authorize the app access to spreadsheet data**

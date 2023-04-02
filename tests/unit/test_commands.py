@@ -32,7 +32,7 @@ class TestConfigCommand:
 
         command: bugetcli config spreadsheet 'SPREADSHEET_ID'
         """
-        result = runner.invoke(config.app, ["spreadsheet"])
+        result = runner.invoke(config.app, ["spreadsheet-id"])
         assert result.exit_code == 2
         assert "Missing argument 'SPREADSHEET_ID'" in result.stdout
 
@@ -44,5 +44,5 @@ class TestConfigCommand:
         spreadsheet_id = get_config("spreadsheet_id")
         if spreadsheet_id is None:
             spreadsheet_id = "SPREADSHEET_ID"
-        result = runner.invoke(config.app, ["spreadsheet", spreadsheet_id])
+        result = runner.invoke(config.app, ["spreadsheet-id", spreadsheet_id])
         assert result.exit_code == 0
