@@ -4,25 +4,40 @@ This module contains the commands for adding transactions to the google sheet
 import typer
 from rich import print
 
-from ..transactions import TransactionType
-
 app = typer.Typer()
+
+DateArgument = typer.Argument(..., help="The date of the transaction")
+CategoryArgument = typer.Argument(..., help="The category of the transaction")
+DescriptionArgument = typer.Argument(..., help="Transaction description")
+AmountArgument = typer.Argument(..., help="The amount of the transaction")
 
 
 @app.command()
-def transaction(
-    date: str = typer.Argument(..., help="The date of the transaction"),
-    category: str = typer.Argument(..., help="The category of the transaction"),
-    description: str = typer.Argument(
-        ..., help="The description of the transaction"
-    ),
-    amount: float = typer.Argument(..., help="The amount of the transaction"),
-    type: TransactionType = typer.Option(
-        ..., help="The type of the transaction"
-    ),
+def income(
+    date: DateArgument,
+    category: CategoryArgument,
+    description: DescriptionArgument,
+    amount: AmountArgument,
 ):
-    """Add a transaction to the google sheet"""
-    print(type)
+    """Add an income transaction to the google sheet"""
+    print(date)
+    print(category)
+    print(description)
+    print(amount)
+
+
+@app.command()
+def outcome(
+    date: DateArgument,
+    category: CategoryArgument,
+    description: DescriptionArgument,
+    amount: AmountArgument,
+):
+    """Add an outcome transaction to the google sheet"""
+    print(date)
+    print(category)
+    print(description)
+    print(amount)
 
 
 @app.callback(invoke_without_command=True)
