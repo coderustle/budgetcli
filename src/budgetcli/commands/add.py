@@ -14,10 +14,10 @@ AmountArgument = typer.Argument(..., help="The amount of the transaction")
 
 @app.command()
 def income(
-    date: DateArgument,
-    category: CategoryArgument,
-    description: DescriptionArgument,
-    amount: AmountArgument,
+    date: str = DateArgument,
+    category: str = CategoryArgument,
+    description: str = DescriptionArgument,
+    amount: str = AmountArgument,
 ):
     """Add an income transaction to the google sheet"""
     print(date)
@@ -28,10 +28,10 @@ def income(
 
 @app.command()
 def outcome(
-    date: DateArgument,
-    category: CategoryArgument,
-    description: DescriptionArgument,
-    amount: AmountArgument,
+    date: str = DateArgument,
+    category: str = CategoryArgument,
+    description: str = DescriptionArgument,
+    amount: str = AmountArgument,
 ):
     """Add an outcome transaction to the google sheet"""
     print(date)
