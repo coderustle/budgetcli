@@ -17,8 +17,7 @@ class Transaction:
     date: str
     category: str
     description: str
-    outcome: Decimal
-    income: Decimal
+    amount: Decimal
 
     @classmethod
     def from_sheet_row(cls, row: list):
@@ -27,7 +26,6 @@ class Transaction:
             row[1],
             row[2],
             Decimal(row[3]),
-            Decimal(row[4]),
         )
 
     def to_sheet_row(self):
