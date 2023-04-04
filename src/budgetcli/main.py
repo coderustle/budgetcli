@@ -3,7 +3,7 @@ from rich import print
 
 from .auth import get_user_authorization
 from .commands import add, config
-from .data_manager import GoogleSheetManager
+from .data_manager import get_data_manager
 
 # init typer app
 app = typer.Typer()
@@ -27,15 +27,17 @@ def auth():
 @app.command()
 def init():
     """Init the tables in the google sheet"""
-    manager = GoogleSheetManager()
-
-    manager.init_sheets_headers()
-    try:
-        manager.init_sheets_headers()
-        print(":heavy_check_mark: Table headers initialized succesfuly")
-    except Exception as e:
+    manager = get_data_manager()
+    
+    if manager:
+        try:
+            manager.init_sheets_headers()
+            print(":heavy_check_mark: Table headers initialized succesfuly")
+        except Exception as e:
+            print(":x: Error initializing tables")
+            print(e)
+    else:
         print(":x: Error initializing tables")
-        print(e)
 
 
 @app.callback(invoke_without_command=True)

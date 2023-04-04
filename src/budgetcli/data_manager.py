@@ -12,7 +12,7 @@ from .utils.config import get_config
 
 class GoogleSheetManager:
     TRANSACTIONS_HEADER = "TRANSACTIONS!A1:F1"
-    TRANSACTION_RANGE = "TRANSACTIONS!A2:F"
+    TRANSACTIONS_RANGE = "TRANSACTIONS!A2:F"
 
     def __init__(self, spradsheet_id: str, service: Any):
         self._spreadsheet_id = spradsheet_id
@@ -81,8 +81,9 @@ def get_authenticated_service() -> Any:
         typer.Exit()
 
 
-def get_data_manager() -> GoogleSheetManager:
+def get_data_manager() -> GoogleSheetManager | None:
     """Get the data manager"""
     service = get_authenticated_service()
     spreadsheet_id = get_config("spreadsheet_id")
-    return GoogleSheetManager(spreadsheet_id, service)
+    if spreadsheet_id:
+        return GoogleSheetManager(spreadsheet_id, service)
