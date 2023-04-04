@@ -28,7 +28,7 @@ def auth():
 def init():
     """Init the tables in the google sheet"""
     manager = get_data_manager()
-    
+
     if manager:
         try:
             manager.init_sheets_headers()
