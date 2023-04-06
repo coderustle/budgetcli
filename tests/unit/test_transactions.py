@@ -1,4 +1,5 @@
 from decimal import Decimal
+from datetime import datetime
 
 from budgetcli.transactions import Transaction
 
@@ -6,7 +7,7 @@ from budgetcli.transactions import Transaction
 def test_transaction_instance():
     """Test that a transaction instance is created"""
     transaction = Transaction(
-        "01/01/2021",
+        datetime.now(),
         "Salary",
         "Salary for January",
         Decimal(0.0),
@@ -20,7 +21,7 @@ def test_transaction_from_sheet_row():
     transaction = Transaction.from_sheet_row(
         [
             "01/01/2021",
-            "Salary",
+            "category",
             "Salary for January",
             "0.0",
             "1000.0",

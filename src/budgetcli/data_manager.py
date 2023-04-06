@@ -44,7 +44,7 @@ class GoogleSheetManager:
         """Add a transaction to the spreadsheet"""
         result = {}
         if self._spreadsheet_id:
-            self._service.values().append(
+            result = self._service.values().append(
                     spreadsheetId=self._spreadsheet_id,
                     valueInputOption="USER_ENTERED",
                     range=self.TRANSACTIONS_RANGE,
