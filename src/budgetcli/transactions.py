@@ -9,12 +9,14 @@ from enum import Enum
 
 from rich import print
 
+
 def validate_amount(amount: str) -> Decimal | None:
     """An utility function to validate the transaction amount"""
     try:
         return Decimal(amount)
     except InvalidOperation:
         print(":x: Invalid amount provided")
+
 
 def validate_date(date_str: str) -> date | None:
     """An utility function to validate the transaction dates"""
@@ -41,16 +43,16 @@ class Transaction:
     income: Decimal = Decimal(0)
     outcome: Decimal = Decimal(0)
 
-    @classmethod 
+    @classmethod
     def from_sheet_row(cls, row: list):
         parsed_date = validate_date(row[0])
         if parsed_date:
             return cls(
-                parsed_date,        # date
-                row[1],             # category
-                row[2],             # description
-                Decimal(row[3]),    # income
-                Decimal(row[4]),    # outcome
+                parsed_date,  # date
+                row[1],  # category
+                row[2],  # description
+                Decimal(row[3]),  # income
+                Decimal(row[4]),  # outcome
             )
 
     def to_sheet_row(self):

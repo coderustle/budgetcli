@@ -26,7 +26,7 @@ def income(
 ):
     """Add an income transaction to the google sheet"""
     transaction: Transaction | None = None
-    manager: GoogleSheetManager | None = get_data_manager() 
+    manager: GoogleSheetManager | None = get_data_manager()
 
     parsed_date = validate_date(date)
     parsed_amount = validate_amount(amount)
