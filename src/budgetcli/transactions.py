@@ -17,15 +17,17 @@ class Transaction:
     date: str
     category: str
     description: str
-    amount: Decimal
+    income: Decimal
+    outcome: Decimal
 
     @classmethod
     def from_sheet_row(cls, row: list):
         return cls(
-            row[0],
-            row[1],
-            row[2],
-            Decimal(row[3]),
+            row[0],             # date
+            row[1],             # category
+            row[2],             # description
+            Decimal(row[3]),    # income
+            Decimal(row[3]),    # outcome
         )
 
     def to_sheet_row(self):
@@ -33,5 +35,6 @@ class Transaction:
             self.date,
             self.category,
             self.description,
-            self.amount,
+            self.income,
+            self.outcome,
         ]

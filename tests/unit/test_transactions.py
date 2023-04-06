@@ -10,6 +10,7 @@ def test_transaction_instance():
         "Salary",
         "Salary for January",
         Decimal(0.0),
+        Decimal(0.0),
     )
     assert isinstance(transaction, Transaction)
 

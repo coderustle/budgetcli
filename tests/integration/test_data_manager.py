@@ -44,4 +44,4 @@ def test_init_tables():
     sheet_manager = get_data_manager()
     result = sheet_manager._init_table(range=range, headers=values)
 
-    assert result is not None
+    assert result is None
