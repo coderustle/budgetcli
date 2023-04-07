@@ -31,29 +31,25 @@ class GoogleSheetManager:
 
     def _init_table(self, range: str, headers: list[str]) -> None:
         """Init tables in spreadsheet"""
-        if self._spreadsheet_id:
-            self._service.values().update(
-                spreadsheetId=self._spreadsheet_id,
-                valueInputOption="USER_ENTERED",
-                range=range,
-                body={"values": [headers]},
-            ).execute()
+        self._service.values().update(
+            spreadsheetId=self._spreadsheet_id,
+            valueInputOption="USER_ENTERED",
+            range=range,
+            body={"values": [headers]},
+        ).execute()
 
     def add_transaction(self, row: list) -> dict[str, str]:
         """Add a transaction to the spreadsheet"""
-        result = {}
-        if self._spreadsheet_id:
-            result = (
-                self._service.values()
-                .append(
-                    spreadsheetId=self._spreadsheet_id,
-                    valueInputOption="USER_ENTERED",
-                    range=self.TRANSACTIONS_RANGE,
-                    body={"values": [row]},
-                )
-                .execute()
+        result = (
+            self._service.values()
+            .append(
+                spreadsheetId=self._spreadsheet_id,
+                valueInputOption="USER_ENTERED",
+                range=self.TRANSACTIONS_RANGE,
+                body={"values": [row]},
             )
-            return result
+            .execute()
+        )
         return result
 
 
