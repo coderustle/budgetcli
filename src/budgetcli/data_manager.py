@@ -10,7 +10,7 @@ from .settings import API_SERVICE_NAME, API_VERSION
 from .utils.config import get_config
 
 
-class GoogleSheetManager:
+class TransactionSheetManager:
     TRANSACTIONS_HEADER = "TRANSACTIONS!A1:F1"
     TRANSACTIONS_RANGE = "TRANSACTIONS!A2:F"
 
@@ -73,9 +73,9 @@ def get_authenticated_service() -> Any:
         typer.Exit()
 
 
-def get_data_manager() -> GoogleSheetManager | None:
+def get_transaction_manager() -> TransactionSheetManager | None:
     """Get the data manager"""
     service = get_authenticated_service()
     spreadsheet_id = get_config("spreadsheet_id")
     if spreadsheet_id:
-        return GoogleSheetManager(spreadsheet_id, service)
+        return TransactionSheetManager(spreadsheet_id, service)

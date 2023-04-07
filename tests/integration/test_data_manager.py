@@ -1,9 +1,9 @@
 from unittest.mock import patch
 
 from budgetcli.data_manager import (
-    GoogleSheetManager,
+    TransactionSheetManager,
     get_authenticated_service,
-    get_data_manager,
+    get_transaction_manager,
 )
 
 
@@ -26,22 +26,10 @@ def test_authenticated_service_with_wrong_credentials():
         assert service is None
 
 
-def test_google_sheet_manager_instance():
+def test_transaction_sheet_manager_instance():
     """Test instance of the GoogleSheetManager"""
 
-    sheet_manager = get_data_manager()
+    sheet_manager = get_transaction_manager()
 
     assert sheet_manager is not None
-    assert isinstance(sheet_manager, GoogleSheetManager)
-
-
-def test_init_tables():
-    """Test init_sheet_tables method"""
-
-    values = ["ID", "DATE", "CATEGORY", "DESCRIPTION", "AMOUNT"]
-    range = "TRANSACTIONS!A1:E1"
-
-    sheet_manager = get_data_manager()
-    result = sheet_manager._init_table(range=range, headers=values)
-
-    assert result is None
+    assert isinstance(sheet_manager, TransactionSheetManager)

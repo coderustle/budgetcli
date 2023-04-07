@@ -3,7 +3,7 @@ from rich import print
 
 from .auth import get_user_authorization
 from .cli import add, config
-from .data_manager import get_data_manager
+from .data_manager import get_transaction_manager
 
 # init typer app
 app = typer.Typer()
@@ -27,7 +27,7 @@ def auth():
 @app.command()
 def init():
     """Init the tables in the google sheet"""
-    manager = get_data_manager()
+    manager = get_transaction_manager()
 
     if manager:
         try:

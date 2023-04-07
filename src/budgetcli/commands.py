@@ -6,7 +6,7 @@ from rich.progress import Progress, SpinnerColumn, TextColumn
 from rich import print
 
 from .transactions import Transaction
-from .data_manager import get_data_manager
+from .data_manager import get_transaction_manager
 
 
 @contextmanager
@@ -33,7 +33,7 @@ class Command(ABC):
 
 class AddTransactionCommand(Command):
     def __init__(self, transaction: Transaction):
-        self._manager = get_data_manager()
+        self._manager = get_transaction_manager()
         self.transaction = transaction
 
     def execute(self):
