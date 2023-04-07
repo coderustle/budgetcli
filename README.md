@@ -48,6 +48,6 @@ budgetcli add income 2023-03-20 salary "short description" 4000
 
 **Add an outcome**
 ```
-budgetcli add income 2023-03-21 rent "short description" 800
+budgetcli add outcome 2023-03-21 rent "short description" 800
 ```
 
