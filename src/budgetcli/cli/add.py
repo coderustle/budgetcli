@@ -3,7 +3,6 @@ This module contains the commands for adding transactions to the google sheet
 """
 
 import typer
-from rich import print
 
 from ..transactions import Transaction, validate_date, validate_amount
 from ..commands import AddTransactionCommand
@@ -46,10 +45,18 @@ def outcome(
     amount: str = AmountArgument,
 ):
     """Add an outcome transaction to the google sheet"""
-    print(date)
-    print(category)
-    print(description)
-    print(amount)
+    transaction: Transaction | None = None
+
+    parsed_date = validate_date(date)
+    parsed_amount = validate_amount(amount)
+
+    if parsed_date and parsed_amount:
+        transaction = Transaction(parsed_date, category, description)
+        transaction.outcome = parsed_amount
+
+    if transaction is not None:
+        command = AddTransactionCommand(transaction)
+        command.execute()
 
 
 @app.callback(invoke_without_command=True)
