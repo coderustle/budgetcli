@@ -21,7 +21,6 @@ class GoogleSheetManager:
     def init_sheets_headers(self):
         """Init the spreadsheet"""
         transaction_headers = [
-            "ID",
             "DATE",
             "CATEGORY",
             "DESCRIPTION",

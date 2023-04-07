@@ -2,7 +2,7 @@ import typer
 from rich import print
 
 from .auth import get_user_authorization
-from .commands import add, config
+from .cli import add, config
 from .data_manager import get_data_manager
 
 # init typer app

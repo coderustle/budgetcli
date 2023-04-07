@@ -4,10 +4,9 @@ This module contains the commands for adding transactions to the google sheet
 
 import typer
 from rich import print
-from rich.progress import Progress, SpinnerColumn, TextColumn
 
 from ..transactions import Transaction, validate_date, validate_amount
-from ..data_manager import get_data_manager, GoogleSheetManager
+from ..commands import AddTransactionCommand
 
 app = typer.Typer()
 
@@ -26,7 +25,6 @@ def income(
 ):
     """Add an income transaction to the google sheet"""
     transaction: Transaction | None = None
-    manager: GoogleSheetManager | None = get_data_manager()
 
     parsed_date = validate_date(date)
     parsed_amount = validate_amount(amount)
@@ -35,15 +33,9 @@ def income(
         transaction = Transaction(parsed_date, category, description)
         transaction.income = parsed_amount
 
-    if manager and transaction:
-        column1 = SpinnerColumn()
-        column2 = TextColumn("Processing..")
-
-        with Progress(column1, column2, transient=True) as progress:
-            progress.add_task("Add transaction", total=None)
-            result = manager.add_transaction(transaction.to_sheet_row())
-            if result:
-                print(":heavy_check_mark: Transaction was added successfully")
+    if transaction:
+        command = AddTransactionCommand(transaction)
+        command.execute()
 
 
 @app.command()

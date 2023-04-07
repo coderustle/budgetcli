@@ -1,5 +1,5 @@
 import pytest
-from budgetcli.commands import config
+from budgetcli.cli import config
 from budgetcli.utils.config import get_config
 from typer.testing import CliRunner
 
