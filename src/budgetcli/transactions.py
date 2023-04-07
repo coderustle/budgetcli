@@ -28,6 +28,8 @@ def validate_date(date_str: str) -> date | None:
         except ValueError:
             pass
     print(":x: Invalid date provided")
+    supported = [",".join(f) for f in date_formats]
+    print(f"Supported formats are: {supported}")
 
 
 class TransactionType(Enum):
