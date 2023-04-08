@@ -45,11 +45,11 @@ budgetcli init
 ```
 budgetcli add income 2023-03-20 salary "short description" 4000
 ```
-[income](./images/income.gif)
+![income](./images/income.gif)
 
 **Add an outcome**
 ```
 budgetcli add outcome 2023-03-21 rent "short description" 800
 ```
-[outcome](./images/outcome.gif)
+![outcome](./images/outcome.gif)
 
