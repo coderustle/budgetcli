@@ -3,7 +3,7 @@ from rich import print
 
 from .auth import get_user_authorization
 from .cli import add, config
-from .data_manager import ManagerFactory 
+from .data_manager import ManagerFactory
 
 # init typer app
 app = typer.Typer()

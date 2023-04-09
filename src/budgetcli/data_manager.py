@@ -12,6 +12,7 @@ from .utils.config import get_config
 
 T = TypeVar("T", bound="AbstractDataManager")
 
+
 class AbstractDataManager(ABC, Generic[T]):
     def __init__(self):
         self.spreadsheet_id = get_config("spreadsheet_id")
