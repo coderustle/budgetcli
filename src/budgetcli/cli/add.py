@@ -4,7 +4,7 @@ This module contains the commands for adding transactions to the google sheet
 
 import typer
 
-from ..transactions import Transaction, validate_date, validate_amount
+from ..models import Transaction, validate_date, validate_amount
 from ..commands import AddTransactionCommand
 
 app = typer.Typer()

@@ -1,7 +1,7 @@
 from decimal import Decimal
 from datetime import datetime
 
-from budgetcli.transactions import Transaction
+from budgetcli.models import Transaction
 
 
 def test_transaction_instance():

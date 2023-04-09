@@ -5,7 +5,7 @@ from contextlib import contextmanager
 from rich.progress import Progress, SpinnerColumn, TextColumn
 from rich import print
 
-from .transactions import Transaction
+from .models import Transaction
 from .data_manager import get_transaction_manager
 
 
