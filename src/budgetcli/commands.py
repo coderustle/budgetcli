@@ -6,7 +6,7 @@ from rich.progress import Progress, SpinnerColumn, TextColumn
 from rich import print
 
 from .models import Transaction
-from .data_manager import get_transaction_manager
+from .data_manager import ManagerFactory
 
 
 @contextmanager
@@ -33,12 +33,12 @@ class Command(ABC):
 
 class AddTransactionCommand(Command):
     def __init__(self, transaction: Transaction):
-        self._manager = get_transaction_manager()
         self.transaction = transaction
+        self.manager = ManagerFactory.create_manager_for("transactions")
 
     def execute(self):
-        if self._manager is not None:
+        if self.manager is not None:
             with task_progress(description="Processing.."):
                 row = self.transaction.to_sheet_row()
-                self._manager.add_transaction(row)
+                self.manager.add_transaction(row)
                 print(":heavy_check_mark: Transaction was added successfully")

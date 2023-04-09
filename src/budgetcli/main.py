@@ -3,7 +3,7 @@ from rich import print
 
 from .auth import get_user_authorization
 from .cli import add, config
-from .data_manager import get_transaction_manager
+from .data_manager import ManagerFactory 
 
 # init typer app
 app = typer.Typer()
@@ -27,11 +27,11 @@ def auth():
 @app.command()
 def init():
     """Init the tables in the google sheet"""
-    manager = get_transaction_manager()
+    manager = ManagerFactory.create_manager_for("transactions")
 
     if manager:
         try:
-            manager.init_sheets_headers()
+            manager.init_transactions()
             print(":heavy_check_mark: Table headers initialized succesfuly")
         except Exception as e:
             print(":x: Error initializing tables")
