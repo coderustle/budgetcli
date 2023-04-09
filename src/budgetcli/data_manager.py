@@ -99,14 +99,8 @@ class TransactionDataManager(AbstractDataManager):
 
     def init_transactions(self):
         """Init the spreadsheet"""
-        transaction_headers = [
-            "DATE",
-            "CATEGORY",
-            "DESCRIPTION",
-            "INCOME",
-            "OUTCOME",
-        ]
-        self._init_headers(self.TRANSACTIONS_HEADER, transaction_headers)
+        headers = ["DATE", "CATEGORY", "DESCRIPTION", "INCOME", "OUTCOME"]
+        self._init_headers(self.TRANSACTIONS_HEADER, headers)
 
     def add_transaction(self, row: list) -> dict[str, str]:
         """Add a transaction to the spreadsheet"""
