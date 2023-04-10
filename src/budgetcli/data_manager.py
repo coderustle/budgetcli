@@ -23,6 +23,10 @@ class AbstractDataManager(ABC, Generic[T]):
         raise NotImplementedError
 
     @abstractmethod
+    def _init_sheet(self) -> None:
+        raise NotImplementedError
+
+    @abstractmethod
     def _append(self, row: list[str]) -> dict[str, str] | None:
         raise NotImplementedError
 
@@ -52,6 +56,11 @@ class TransactionDataManager(AbstractDataManager):
     SHEET_NAME = "TRANSACTIONS"
     TRANSACTIONS_HEADER = "TRANSACTIONS!A1:F1"
     TRANSACTIONS_RANGE = "TRANSACTIONS!A2:F"
+
+
+    def _init_sheet(self) -> None:
+        """Create sheet TRANSACTIONS if not exists"""
+        ...
 
     def _init_headers(self, range: str, headers: list[str]) -> None:
         """Init tables in spreadsheet"""
