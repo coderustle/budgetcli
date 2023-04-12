@@ -1,4 +1,3 @@
-import asyncio
 from abc import ABC, abstractmethod
 import time
 from contextlib import contextmanager
@@ -41,5 +40,5 @@ class AddTransactionCommand(Command):
         if self.manager is not None:
             with task_progress(description="Processing.."):
                 row = self.transaction.to_sheet_row()
-                asyncio.run(self.manager.add_transaction(row))
+                self.manager.add_transaction(row)
                 print(":heavy_check_mark: Transaction was added successfully")
