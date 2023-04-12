@@ -1,5 +1,6 @@
 from typing import Any, TypeVar, Generic
 from abc import ABC, abstractmethod
+import asyncio
 
 import typer
 from google.oauth2.credentials import Credentials
@@ -111,13 +112,15 @@ class TransactionDataManager(AbstractDataManager):
         headers = ["DATE", "CATEGORY", "DESCRIPTION", "INCOME", "OUTCOME"]
         self._init_headers(self.TRANSACTIONS_HEADER, headers)
 
-    def add_transaction(self, row: list) -> dict[str, str]:
+    async def add_transaction(self, row: list) -> None: # dict[str, str]:
         """Add a transaction to the spreadsheet"""
-        result = self._append(row)
-        if result:
-            return result
-        else:
-            return {}
+        # result = self._append(row)
+        await asyncio.to_thread(self._append, row)
+        print("finished")
+        # if result:
+        #    return result
+        # else:
+        #     return {}
 
     def list_transactions(self, rows: int = 100) -> list[list[str]]:
         """List transactions. Default 100 rows"""
