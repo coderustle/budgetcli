@@ -1,3 +1,4 @@
+import asyncio
 import typer
 from rich import print
 
@@ -26,18 +27,11 @@ def auth():
 
 @app.command()
 def init():
-    """Init the tables in the google sheet"""
-    manager = ManagerFactory.create_manager_for("transactions")
-
-    if manager:
-        try:
-            manager.init_transactions()
-            print(":heavy_check_mark: Table headers initialized succesfuly")
-        except Exception as e:
-            print(":x: Error initializing tables")
-            print(e)
-    else:
-        print(":x: Error initializing tables")
+    """Init the sheets in the google spreadsheets"""
+    with asyncio.Runner() as runner:
+        runner.run(ManagerFactory.create_sheet_for("TRANSACTIONS"))
+        runner.run(ManagerFactory.create_sheet_for("CATEGORIES"))
+        runner.run(ManagerFactory.create_sheet_for("BUDGETS"))
 
 
 @app.callback(invoke_without_command=True)
