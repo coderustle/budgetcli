@@ -31,6 +31,11 @@ class Command(ABC):
         raise NotImplementedError
 
 
+class InitTransactionCommand(Command):
+    def __init__(self, transaction: Transaction):
+        pass
+
+
 class AddTransactionCommand(Command):
     def __init__(self, transaction: Transaction):
         self.transaction = transaction
