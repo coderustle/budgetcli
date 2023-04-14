@@ -102,6 +102,15 @@ class TransactionDataManager(AbstractDataManager):
             status = err.response.status_code
             pprint(f"Error calling {req_url}, http status: {status}")
 
+    def init_sheet(self):
+        """Create TRANSACTIONS sheet if not exists"""
+        with asyncio.Runner() as runner:
+            # check if sheet exists
+            sheet = runner.run(self.sheet_exists("TRANSACTIONS"))
+            if not sheet:
+                runner.run(self.create_sheet("TRANSACTIONS"))
+
+
     def add_transaction(self, row: list) -> None:
         """Add a transaction to the spreadsheet"""
         asyncio.run(self._append(row=row, range=self.TRANSACTIONS_RANGE))
