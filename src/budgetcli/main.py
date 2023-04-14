@@ -4,7 +4,7 @@ from rich import print
 
 from .auth import get_user_authorization
 from .cli import add, config
-from .data_manager import ManagerFactory
+from .commands import InitTransactionCommand
 
 # init typer app
 app = typer.Typer()
@@ -28,7 +28,8 @@ def auth():
 @app.command()
 def init():
     """Init the sheets in the google spreadsheets"""
-    pass
+    command = InitTransactionCommand()
+    command.execute()
 
 
 @app.callback(invoke_without_command=True)

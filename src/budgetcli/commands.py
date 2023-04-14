@@ -32,8 +32,14 @@ class Command(ABC):
 
 
 class InitTransactionCommand(Command):
-    def __init__(self, transaction: Transaction):
-        pass
+    def __init__(self):
+        self.manager = ManagerFactory.create_manager_for("transactions")
+
+    def execute(self):
+        if self.manager is not None:
+            with task_progress(description="Processing.."):
+                self.manager.init_sheet()
+                print(":heavy_check_mark: Init was completed successfully")
 
 
 class AddTransactionCommand(Command):
