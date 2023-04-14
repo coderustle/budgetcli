@@ -121,22 +121,6 @@ class TransactionDataManager(AbstractDataManager):
 
 class ManagerFactory:
     @staticmethod
-    async def create_sheet_for(title: str):
-        """A class function to create a sheet in the spreadsheet"""
-        session = httpx.AsyncClient()
-        session.headers.update(AbstractDataManager.get_auth_headers())
-        spreadsheet_id = "test"
-        url = f"{API_URL}/{spreadsheet_id}:batchUpdate"
-        body = {"requests": [{"addSheet": {"properties": {"title": title}}}]}
-        response = await session.post(url, json=body)
-        try:
-            response.raise_for_status()
-        except httpx.HTTPStatusError as err:
-            req_url = err.request.url
-            status = err.response.status_code
-            pprint(f"Error calling {req_url}, http status: {status}")
-
-    @staticmethod
     def create_manager_for(manager_name: str) -> Any | None:
         match manager_name:
             case "transactions":

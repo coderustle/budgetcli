@@ -28,10 +28,7 @@ def auth():
 @app.command()
 def init():
     """Init the sheets in the google spreadsheets"""
-    with asyncio.Runner() as runner:
-        runner.run(ManagerFactory.create_sheet_for("TRANSACTIONS"))
-        runner.run(ManagerFactory.create_sheet_for("CATEGORIES"))
-        runner.run(ManagerFactory.create_sheet_for("BUDGETS"))
+    pass
 
 
 @app.callback(invoke_without_command=True)
