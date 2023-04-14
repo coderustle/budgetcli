@@ -4,18 +4,20 @@ from abc import ABC, abstractmethod
 
 import httpx
 from google.oauth2.credentials import Credentials
+from rich.pretty import pprint
 
 from .auth import load_user_token
-from .utils.config import get_config
 from .settings import API_URL
+from .utils.config import get_config
 
 T = TypeVar("T", bound="AbstractDataManager")
+
+SPREADSHEET_ID = get_config("spreadsheet_id")
 
 
 class AbstractDataManager(ABC, Generic[T]):
     def __init__(self):
-        self.spreadsheet_id = get_config("spreadsheet_id")
-        self.base_url = f"{API_URL}/{self.spreadsheet_id}"
+        self.base_url = f"{API_URL}/{SPREADSHEET_ID}"
         self.session = httpx.AsyncClient()
         self.session.headers.update(self.get_auth_headers())
 
@@ -36,14 +38,46 @@ class AbstractDataManager(ABC, Generic[T]):
             credentials.apply(headers=headers)
         return headers
 
+    async def sheet_exists(self, title: str) -> bool:
+        """Check if the sheet with the given title exists"""
+        params = "fields=sheets.properties.title"
+        url = f"{self.base_url}?{params}"
+        response = await self.session.get(url)
+        try:
+            response.raise_for_status()
+            data = response.json()
+            sheets = data.get("sheets")
+            for sheet in sheets:
+                if sheet["properties"]["title"] == title:
+                    return True
+        except httpx.HTTPStatusError as err:
+            req_url = err.request.url
+            status = err.response.status_code
+            pprint(f"Error calling {req_url}, http status: {status}")
+        return False
+
+    async def create_sheet(self, title: str) -> bool:
+        """Create sheet with the given title"""
+        url = f"{self.base_url}/:batchUpdate"
+        body = {"requests": [{"addSheet": {"properties": {"title": title}}}]}
+        response = await self.session.post(url, json=body)
+        try:
+            response.raise_for_status()
+            return True
+        except httpx.HTTPStatusError as err:
+            req_url = err.request.url
+            status = err.response.status_code
+            pprint(f"Error calling {req_url}, http status: {status}")
+        return False
+
 
 class TransactionDataManager(AbstractDataManager):
     TRANSACTIONS_RANGE = "TRANSACTIONS!A:E"
 
     async def _append(self, row: list[str], range: str) -> None:
         """Append row to transactions sheet"""
-        params = "?valueInputOption=USER_ENTERED"
-        url = f"{self.base_url}/values/{range}:append{params}"
+        params = "valueInputOption=USER_ENTERED"
+        url = f"{self.base_url}/values/{range}:append?{params}"
         body = {"majorDimension": "ROWS", "values": [row]}
         response = await self.session.post(url, json=body)
 
@@ -52,7 +86,7 @@ class TransactionDataManager(AbstractDataManager):
         except httpx.HTTPStatusError as err:
             req_url = err.request.url
             status = err.response.status_code
-            print(f"Error calling {req_url}, http status: {status}")
+            pprint(f"Error calling {req_url}, http status: {status}")
 
     async def _list(self, range: str) -> list[list[str]] | None:
         """List last 100 transactions"""
@@ -66,7 +100,7 @@ class TransactionDataManager(AbstractDataManager):
         except httpx.HTTPStatusError as err:
             req_url = err.request.url
             status = err.response.status_code
-            print(f"Error calling {req_url}, http status: {status}")
+            pprint(f"Error calling {req_url}, http status: {status}")
 
     def add_transaction(self, row: list) -> None:
         """Add a transaction to the spreadsheet"""
@@ -91,7 +125,7 @@ class ManagerFactory:
         """A class function to create a sheet in the spreadsheet"""
         session = httpx.AsyncClient()
         session.headers.update(AbstractDataManager.get_auth_headers())
-        spreadsheet_id = get_config("spreadsheet_id")
+        spreadsheet_id = "test"
         url = f"{API_URL}/{spreadsheet_id}:batchUpdate"
         body = {"requests": [{"addSheet": {"properties": {"title": title}}}]}
         response = await session.post(url, json=body)
@@ -100,7 +134,7 @@ class ManagerFactory:
         except httpx.HTTPStatusError as err:
             req_url = err.request.url
             status = err.response.status_code
-            print(f"Error calling {req_url}, http status: {status}")
+            pprint(f"Error calling {req_url}, http status: {status}")
 
     @staticmethod
     def create_manager_for(manager_name: str) -> Any | None:
@@ -110,4 +144,4 @@ class ManagerFactory:
             case "categories":
                 pass
             case _:
-                print("No manager found")
+                pprint("No manager found")
