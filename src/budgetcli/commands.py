@@ -4,8 +4,10 @@ from contextlib import contextmanager
 
 from rich.progress import Progress, SpinnerColumn, TextColumn
 from rich import print
+from rich.table import Table
 
 from .models import Transaction
+from .settings import CURRENCY
 from .data_manager import ManagerFactory
 
 
@@ -53,3 +55,25 @@ class AddTransactionCommand(Command):
                 row = self.transaction.to_sheet_row()
                 self.manager.add_transaction(row)
                 print(":heavy_check_mark: Transaction was added successfully")
+
+
+class ListTransactionCommand(Command):
+    def __init__(self):
+        self.manager = ManagerFactory.create_manager_for("transactions")
+
+    def execute(self):
+        table = Table(title="Transactions")
+        table.add_column("Date", justify="left", no_wrap=True)
+        table.add_column("Category", justify="left", no_wrap=True)
+        table.add_column("Description", justify="left", no_wrap=True)
+        table.add_column("Income", justify="left", no_wrap=True)
+        table.add_column("Outcome", justify="left", no_wrap=True)
+
+        if self.manager is not None:
+            with task_progress(description="Processing.."):
+                transactions = self.manager.list_transactions()
+                for row in transactions:
+                    income = f"{CURRENCY} {row[3]}"
+                    outcome = f"{CURRENCY} {row[4]}"
+                    table.add_row(row[0], row[1], row[2], income, outcome)
+        print(table)

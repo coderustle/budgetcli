@@ -3,7 +3,7 @@ import typer
 from rich import print
 
 from .auth import get_user_authorization
-from .cli import add, config
+from .cli import add, config, display
 from .commands import InitTransactionCommand
 
 # init typer app
@@ -12,6 +12,7 @@ app = typer.Typer()
 # register commands
 app.add_typer(config.app, name="config")
 app.add_typer(add.app, name="add")
+app.add_typer(display.app, name="list")
 
 
 @app.command()
