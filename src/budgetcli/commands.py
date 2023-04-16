@@ -62,12 +62,12 @@ class ListTransactionCommand(Command):
         self.manager = ManagerFactory.create_manager_for("transactions")
 
     def execute(self):
-        table = Table(title="Transactions")
+        table = Table(show_edge=False, header_style="blue")
         table.add_column("Date", justify="left", no_wrap=True)
         table.add_column("Category", justify="left", no_wrap=True)
         table.add_column("Description", justify="left", no_wrap=True)
-        table.add_column("Income", justify="left", no_wrap=True)
-        table.add_column("Outcome", justify="left", no_wrap=True)
+        table.add_column("Income", justify="left", no_wrap=True, style="green")
+        table.add_column("Outcome", justify="left", no_wrap=True, style="red")
 
         if self.manager is not None:
             with task_progress(description="Processing.."):
