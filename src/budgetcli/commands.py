@@ -1,3 +1,4 @@
+import asyncio
 from abc import ABC, abstractmethod
 import time
 from contextlib import contextmanager
@@ -40,7 +41,7 @@ class InitTransactionCommand(Command):
     def execute(self):
         if self.manager is not None:
             with task_progress(description="Processing.."):
-                self.manager.init_sheet()
+                asyncio.run(self.manager.init_sheet())
                 print(":heavy_check_mark: Init was completed successfully")
 
 
@@ -53,7 +54,7 @@ class AddTransactionCommand(Command):
         if self.manager is not None:
             with task_progress(description="Processing.."):
                 row = self.transaction.to_sheet_row()
-                self.manager.add_transaction(row)
+                asyncio.run(self.manager.add_transaction(row))
                 print(":heavy_check_mark: Transaction was added successfully")
 
 
@@ -71,7 +72,7 @@ class ListTransactionCommand(Command):
 
         if self.manager is not None:
             with task_progress(description="Processing.."):
-                transactions = self.manager.list_transactions()
+                transactions = asyncio.run(self.manager.list_transactions())
                 for row in transactions:
                     income = f"{CURRENCY} {row[3]}"
                     outcome = f"{CURRENCY} {row[4]}"

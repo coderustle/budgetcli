@@ -102,22 +102,24 @@ class TransactionDataManager(AbstractDataManager):
             status = err.response.status_code
             pprint(f"Error calling {req_url}, http status: {status}")
 
-    def init_sheet(self):
+    async def init_sheet(self):
         """Create TRANSACTIONS sheet if not exists"""
-        with asyncio.Runner() as runner:
-            # check if sheet exists
-            sheet = runner.run(self.sheet_exists("TRANSACTIONS"))
-            if not sheet:
-                runner.run(self.create_sheet("TRANSACTIONS"))
+        check_task = asyncio.create_task(self.sheet_exists("TRANSACTIONS"))
+        create_task = asyncio.create_task(self.create_sheet("TRANSACTIONS"))
+        sheet = await check_task
+        if not sheet:
+            await create_task
 
 
-    def add_transaction(self, row: list) -> None:
+    async def add_transaction(self, row: list) -> None:
         """Add a transaction to the spreadsheet"""
-        asyncio.run(self._append(row=row, range=self.TRANSACTIONS_RANGE))
+        task = asyncio.create_task(self._append(row=row, range=self.TRANSACTIONS_RANGE))
+        await task
 
-    def list_transactions(self) -> list[list[str]]:
+    async def list_transactions(self) -> list[list[str]]:
         """List transactions. Default 100 rows"""
-        result = asyncio.run(self._list(range=self.TRANSACTIONS_RANGE))
+        task = asyncio.create_task(self._list(range=self.TRANSACTIONS_RANGE))
+        result = await task
         if result:
             check_rows = all(isinstance(row, list) for row in result)
             check_columns = all(
