@@ -72,7 +72,10 @@ class AbstractDataManager(ABC, Generic[T]):
 
 
 class TransactionDataManager(AbstractDataManager):
-    TRANSACTIONS_RANGE = "TRANSACTIONS!A:E"
+    SHEET_NAME = "TRANSACTIONS!"
+    FIRST_COLUMN = "A"
+    LAST_COLUMN = "E"
+    TRANSACTIONS_RANGE = f"{SHEET_NAME}{FIRST_COLUMN}:{LAST_COLUMN}"
 
     async def _append(self, row: list[str], range: str) -> None:
         """Append row to transactions sheet"""
@@ -96,6 +99,7 @@ class TransactionDataManager(AbstractDataManager):
         try:
             response.raise_for_status()
             result = response.json()
+            print(result)
             return result.get("values", [])
         except httpx.HTTPStatusError as err:
             req_url = err.request.url
@@ -116,17 +120,21 @@ class TransactionDataManager(AbstractDataManager):
         task = asyncio.create_task(self._append(row=row, range=self.TRANSACTIONS_RANGE))
         await task
 
-    async def list_transactions(self) -> list[list[str]]:
+    async def list_transactions(self, rows: int = 100) -> list[list[str]]:
         """List transactions. Default 100 rows"""
-        task = asyncio.create_task(self._list(range=self.TRANSACTIONS_RANGE))
+        transaction_range = f"{self.TRANSACTIONS_RANGE}{rows}"
+        print(transaction_range)
+        task = asyncio.create_task(self._list(range=transaction_range))
         result = await task
+        print(result)
         if result:
-            check_rows = all(isinstance(row, list) for row in result)
-            check_columns = all(
-                isinstance(col, str) for rows in result for col in rows
-            )
-            if isinstance(result, list) and check_rows and check_columns:
-                return result
+            #check_rows = all(isinstance(row, list) for row in result)
+            #check_columns = all(
+            #    isinstance(col, str) for rows in result for col in rows
+            #)
+            #if isinstance(result, list) and check_rows and check_columns:
+            print("result", result)
+            return result
         return []
 
 
