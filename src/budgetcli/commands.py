@@ -59,7 +59,8 @@ class AddTransactionCommand(Command):
 
 
 class ListTransactionCommand(Command):
-    def __init__(self):
+    def __init__(self, rows: int):
+        self.rows = rows
         self.manager = ManagerFactory.create_manager_for("transactions")
 
     def execute(self):
@@ -72,7 +73,7 @@ class ListTransactionCommand(Command):
 
         if self.manager is not None:
             with task_progress(description="Processing.."):
-                transactions = asyncio.run(self.manager.list_transactions())
+                transactions = asyncio.run(self.manager.list_transactions(self.rows))
                 for row in transactions:
                     income = f"{CURRENCY} {row[3]}"
                     outcome = f"{CURRENCY} {row[4]}"

@@ -116,14 +116,12 @@ class TransactionDataManager(AbstractDataManager):
 
     async def add_transaction(self, row: list) -> None:
         """Add a transaction to the spreadsheet"""
-        task = asyncio.create_task(self._append(row=row, range=self.TRANSACTIONS_RANGE))
-        await task
+        await self._append(row=row, range=self.TRANSACTIONS_RANGE)
 
     async def list_transactions(self, rows: int = 100) -> list[list[str]]:
         """List transactions. Default 100 rows"""
         transaction_range = f"{self.TRANSACTIONS_RANGE}{rows}"
-        task = asyncio.create_task(self._list(range=transaction_range))
-        result = await task
+        result = await self._list(range=transaction_range)
         if result:
             check_rows = all(isinstance(row, list) for row in result)
             check_columns = all(

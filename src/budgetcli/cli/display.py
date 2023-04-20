@@ -5,10 +5,11 @@ from ..commands import ListTransactionCommand
 
 app = typer.Typer()
 
+
 @app.command()
-def transactions():
+def transactions(rows: int = typer.Option(100, min=1, max=1000)):
     """List all transactions from spreadsheet"""
-    command = ListTransactionCommand()
+    command = ListTransactionCommand(rows)
     command.execute()
 
 @app.callback(invoke_without_command=True)
