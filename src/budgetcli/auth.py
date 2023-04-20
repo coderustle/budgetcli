@@ -26,7 +26,7 @@ def get_user_authorization() -> ExCredentials | Credentials | None:
             CREDENTIALS_SECRET_PATH, SCOPES
         )
 
-        credentials = flow.run_local_server(port=0)
+        credentials = flow.run_local_server(port=60880)
 
         with open(AUTH_TOKEN_PATH, "w") as file:
             file.write(credentials.to_json())
