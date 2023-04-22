@@ -109,9 +109,12 @@ class TransactionDataManager(AbstractDataManager):
         """Create TRANSACTIONS sheet if not exists"""
         check_task = asyncio.create_task(self.sheet_exists("TRANSACTIONS"))
         create_task = asyncio.create_task(self.create_sheet("TRANSACTIONS"))
-        sheet = await check_task
-        if not sheet:
-            await create_task
+        try:
+            sheet = await asyncio.wait_for(check_task, timeout=5) 
+            if not sheet:
+                await asyncio.wait_for(create_task, timeout=5)
+        except asyncio.TimeoutError:
+            print("Timeout error")
 
 
     async def add_transaction(self, row: list) -> None:
