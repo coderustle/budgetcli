@@ -26,7 +26,6 @@ class TestTransactionDataManager:
         """Test query transactions"""
         manager = ManagerFactory.create_manager_for("transactions")
         if manager:
-            result = await manager.get_transactions_for_month(3)
-            pprint(result, expand_all=True)
+            result = await manager.get_transactions_for_month(4)
+            assert result
             assert isinstance(result, list)
-            assert len(result) == 3

@@ -4,9 +4,12 @@ from ..commands import ListTransactionCommand
 
 app = typer.Typer()
 
+RowsOption = typer.Option(100, min=1, max=100, help="Number of rows")
+MonthOption = typer.Option(None)
+
 
 @app.command()
-def transactions(rows: int = typer.Option(100, min=1, max=1000)):
+def transactions(rows: int = RowsOption):
     """List all transactions from spreadsheet"""
     command = ListTransactionCommand(rows)
     command.execute()

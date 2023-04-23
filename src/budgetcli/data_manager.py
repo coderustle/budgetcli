@@ -53,7 +53,7 @@ class AbstractDataManager(ABC, Generic[T]):
             status = err.response.status_code
             pprint(f"Error calling {req_url}, http status: {status}")
 
-    async def _query(self, query: str) -> list[dict[str, str]] | None:
+    async def _query(self, query: str) -> list[dict[str, list]] | None:
         """A method to use Goolge Visualization API"""
         params = f"gid={1}&tq={query}&tqx=out:json"
         url = f"{self.gvi_url}?{params}"
@@ -129,12 +129,26 @@ class TransactionDataManager(AbstractDataManager):
         except asyncio.TimeoutError:
             print("Timeout error")
 
-    async def get_transactions_for_month(self, month: int) -> list[str] | None:
+    async def get_transactions_for_month(
+        self, month: int
+    ) -> list[list[str]] | None:
         """Query the transactions for current month"""
+        month = month - 1  # month query starts from 0 to 11
         query = f"select A,B,C,D,E where month(A)={month}"
-        rows = []
-        result = await self._query(query)
-        return rows
+        transactions = []
+        rows = await self._query(query)
+        if rows:
+            for row in rows:
+                transaction = []
+                for cel in row.get("c", []):
+                    if "Date(" in str(cel.get("v")):
+                        clean_date = cel.get("v").replace("Date(", "")[:-1]
+                        clean_date = clean_date.replace(",", "-")
+                        transaction.append(clean_date)
+                    else:
+                        transaction.append(cel.get("v"))
+                transactions.append(transaction)
+        return transactions
 
     async def add_transaction(self, row: list) -> None:
         """Add a transaction to the spreadsheet"""

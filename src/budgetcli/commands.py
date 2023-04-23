@@ -1,31 +1,12 @@
 import asyncio
 from abc import ABC, abstractmethod
-import time
-from contextlib import contextmanager
 
-from rich.progress import Progress, SpinnerColumn, TextColumn
 from rich import print
-from rich.table import Table
 
 from .models import Transaction
 from .settings import CURRENCY
 from .data_manager import ManagerFactory
-
-
-@contextmanager
-def task_progress(description: str):
-    """An utility function to display a progress spinner"""
-    start_time = time.time()
-    spinner = SpinnerColumn()
-    text = TextColumn("[progress.description]{task.description}")
-    try:
-        with Progress(spinner, text, transient=True) as progress:
-            progress.add_task(description=description, total=None)
-            yield
-    finally:
-        end_time = time.time()
-        elapsed_time = end_time - start_time
-        print(f":sparkles: Completed in {elapsed_time:.2f} seconds")
+from .utils.display import get_transaction_table, task_progress
 
 
 class Command(ABC):
@@ -64,17 +45,30 @@ class ListTransactionCommand(Command):
         self.manager = ManagerFactory.create_manager_for("transactions")
 
     def execute(self):
-        table = Table(show_edge=False, header_style="blue")
-        table.add_column("Date", justify="left", no_wrap=True)
-        table.add_column("Category", justify="left", no_wrap=True)
-        table.add_column("Description", justify="left", no_wrap=True)
-        table.add_column("Income", justify="left", no_wrap=True, style="green")
-        table.add_column("Outcome", justify="left", no_wrap=True, style="red")
-
+        table = get_transaction_table()
         if self.manager is not None:
             with task_progress(description="Processing.."):
                 transactions = asyncio.run(
                     self.manager.list_transactions(self.rows)
+                )
+                for row in transactions:
+                    income = f"{CURRENCY} {row[3]}"
+                    outcome = f"{CURRENCY} {row[4]}"
+                    table.add_row(row[0], row[1], row[2], income, outcome)
+        print(table)
+
+
+class GetTransactionsForMonthCommand(Command):
+    def __init__(self, month: int):
+        self.month = month
+        self.manager = ManagerFactory.create_manager_for("transactions")
+
+    def execute(self):
+        table = get_transaction_table()
+        if self.manager is not None:
+            with task_progress(description="Processing.."):
+                transactions = asyncio.run(
+                    self.manager.get_transactions_for_month(3)
                 )
                 for row in transactions:
                     income = f"{CURRENCY} {row[3]}"
