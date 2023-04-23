@@ -64,7 +64,6 @@ class AbstractDataManager(ABC, Generic[T]):
             clean_data = response.text.replace(to_replace, "")[:-2]
             json_data = json.loads(clean_data)
             rows = json_data.get("table", {}).get("rows", []) 
-            pprint(clean_data)
             return rows
         except httpx.HTTPStatusError as err:
             req_url = err.request.url
@@ -132,11 +131,9 @@ class TransactionDataManager(AbstractDataManager):
 
     async def get_transactions_for_month(self, month: int) -> list[str] | None:
         """Query the transactions for current month"""
-        query = f"select A, B, C, D, E where month(A)={month}"
+        query = f"select A,B,C,D,E where month(A)={month}"
         rows = []
         result = await self._query(query)
-        pprint(result, expand_all=True)
-
         return rows
 
     async def add_transaction(self, row: list) -> None:
