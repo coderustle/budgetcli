@@ -1,7 +1,7 @@
 import asyncio
 import json
 from typing import Any, TypeVar, Generic
-from abc import ABC 
+from abc import ABC
 from rich.pretty import pprint
 
 import httpx
@@ -60,16 +60,16 @@ class AbstractDataManager(ABC, Generic[T]):
         response = await self.session.get(url)
         try:
             response.raise_for_status()
-            to_replace ='/*O_o*/\ngoogle.visualization.Query.setResponse('
+            to_replace = "/*O_o*/\ngoogle.visualization.Query.setResponse("
             clean_data = response.text.replace(to_replace, "")[:-2]
             json_data = json.loads(clean_data)
-            rows = json_data.get("table", {}).get("rows", []) 
+            rows = json_data.get("table", {}).get("rows", [])
             return rows
         except httpx.HTTPStatusError as err:
             req_url = err.request.url
             status = err.response.status_code
             pprint(f"Error calling {req_url}, http status: {status}")
-        
+
     @staticmethod
     def get_auth_headers() -> dict:
         """Get the authentication headers from google credentials"""
