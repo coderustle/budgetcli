@@ -53,7 +53,7 @@ class AbstractDataManager(ABC, Generic[T]):
             status = err.response.status_code
             pprint(f"Error calling {req_url}, http status: {status}")
 
-    async def _query(self, query: str) -> dict[str, str] | None:
+    async def _query(self, query: str) -> list[dict[str, str]] | None:
         """A method to use Goolge Visualization API"""
         params = f"gid={1}&tq={query}&tqx=out:json"
         url = f"{self.gvi_url}?{params}"
@@ -61,10 +61,11 @@ class AbstractDataManager(ABC, Generic[T]):
         try:
             response.raise_for_status()
             to_replace ='/*O_o*/\ngoogle.visualization.Query.setResponse('
-            data = response.text.replace(to_replace, "")[:-2]
-            json_data = json.loads(data)
+            clean_data = response.text.replace(to_replace, "")[:-2]
+            json_data = json.loads(clean_data)
             rows = json_data.get("table", {}).get("rows", []) 
-            pprint(rows, expand_all=True)
+            pprint(clean_data)
+            return rows
         except httpx.HTTPStatusError as err:
             req_url = err.request.url
             status = err.response.status_code
@@ -129,11 +130,14 @@ class TransactionDataManager(AbstractDataManager):
         except asyncio.TimeoutError:
             print("Timeout error")
 
-    async def get_transactions_current_month(self) -> None:
+    async def get_transactions_for_month(self, month: int) -> list[str] | None:
         """Query the transactions for current month"""
-        # query = 'QUERY(TRANSACTIONS!A:E; "select A")'
-        query = "select A, B, C, D, E where D=300"
-        await self._query(query)
+        query = f"select A, B, C, D, E where month(A)={month}"
+        rows = []
+        result = await self._query(query)
+        pprint(result, expand_all=True)
+
+        return rows
 
     async def add_transaction(self, row: list) -> None:
         """Add a transaction to the spreadsheet"""
