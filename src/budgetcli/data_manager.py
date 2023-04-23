@@ -1,13 +1,14 @@
 import asyncio
+import json
 from typing import Any, TypeVar, Generic
-from abc import ABC, abstractmethod
+from abc import ABC 
+from rich.pretty import pprint
 
 import httpx
 from google.oauth2.credentials import Credentials
-from rich.pretty import pprint
 
 from .auth import load_user_token
-from .settings import API_URL
+from .settings import API_URL, GVI_URL
 from .utils.config import get_config
 
 T = TypeVar("T", bound="AbstractDataManager")
@@ -18,17 +19,57 @@ SPREADSHEET_ID = get_config("spreadsheet_id")
 class AbstractDataManager(ABC, Generic[T]):
     def __init__(self):
         self.base_url = f"{API_URL}/{SPREADSHEET_ID}"
+        self.gvi_url = f"{GVI_URL}/{SPREADSHEET_ID}/gviz/tq"
         self.session = httpx.AsyncClient()
         self.session.headers.update(self.get_auth_headers())
 
-    @abstractmethod
-    async def _append(self, row: list[str]) -> dict[str, str] | None:
-        raise NotImplementedError
+    async def _append(
+        self, row: list[str], range: str
+    ) -> dict[str, str] | None:
+        """Append row to sheet"""
+        params = "valueInputOption=USER_ENTERED"
+        url = f"{self.base_url}/values/{range}:append?{params}"
+        body = {"majorDimension": "ROWS", "values": [row]}
+        response = await self.session.post(url, json=body)
 
-    @abstractmethod
+        try:
+            response.raise_for_status()
+        except httpx.HTTPStatusError as err:
+            req_url = err.request.url
+            status = err.response.status_code
+            pprint(f"Error calling {req_url}, http status: {status}")
+
     async def _list(self, range: str) -> dict[str, str] | None:
-        raise NotImplementedError
+        """List data from a given range"""
+        params = "?majorDimension=ROWS"
+        url = f"{self.base_url}/values/{range}{params}"
+        response = await self.session.get(url)
+        try:
+            response.raise_for_status()
+            result = response.json()
+            return result.get("values", [])
+        except httpx.HTTPStatusError as err:
+            req_url = err.request.url
+            status = err.response.status_code
+            pprint(f"Error calling {req_url}, http status: {status}")
 
+    async def _query(self, query: str) -> dict[str, str] | None:
+        """A method to use Goolge Visualization API"""
+        params = f"gid={1}&tq={query}&tqx=out:json"
+        url = f"{self.gvi_url}?{params}"
+        response = await self.session.get(url)
+        try:
+            response.raise_for_status()
+            to_replace ='/*O_o*/\ngoogle.visualization.Query.setResponse('
+            data = response.text.replace(to_replace, "")[:-2]
+            json_data = json.loads(data)
+            rows = json_data.get("table", {}).get("rows", []) 
+            pprint(rows, expand_all=True)
+        except httpx.HTTPStatusError as err:
+            req_url = err.request.url
+            status = err.response.status_code
+            pprint(f"Error calling {req_url}, http status: {status}")
+        
     @staticmethod
     def get_auth_headers() -> dict:
         """Get the authentication headers from google credentials"""
@@ -77,45 +118,22 @@ class TransactionDataManager(AbstractDataManager):
     LAST_COLUMN = "E"
     TRANSACTIONS_RANGE = f"{SHEET_NAME}{FIRST_COLUMN}1:{LAST_COLUMN}"
 
-    async def _append(self, row: list[str], range: str) -> None:
-        """Append row to transactions sheet"""
-        params = "valueInputOption=USER_ENTERED"
-        url = f"{self.base_url}/values/{range}:append?{params}"
-        body = {"majorDimension": "ROWS", "values": [row]}
-        response = await self.session.post(url, json=body)
-
-        try:
-            response.raise_for_status()
-        except httpx.HTTPStatusError as err:
-            req_url = err.request.url
-            status = err.response.status_code
-            pprint(f"Error calling {req_url}, http status: {status}")
-
-    async def _list(self, range: str) -> list[list[str]] | None:
-        """List last 100 transactions"""
-        params = "?majorDimension=ROWS"
-        url = f"{self.base_url}/values/{range}{params}"
-        response = await self.session.get(url)
-        try:
-            response.raise_for_status()
-            result = response.json()
-            return result.get("values", [])
-        except httpx.HTTPStatusError as err:
-            req_url = err.request.url
-            status = err.response.status_code
-            pprint(f"Error calling {req_url}, http status: {status}")
-
     async def init_sheet(self):
         """Create TRANSACTIONS sheet if not exists"""
         check_task = asyncio.create_task(self.sheet_exists("TRANSACTIONS"))
         create_task = asyncio.create_task(self.create_sheet("TRANSACTIONS"))
         try:
-            sheet = await asyncio.wait_for(check_task, timeout=5) 
+            sheet = await asyncio.wait_for(check_task, timeout=5)
             if not sheet:
                 await asyncio.wait_for(create_task, timeout=5)
         except asyncio.TimeoutError:
             print("Timeout error")
 
+    async def get_transactions_current_month(self) -> None:
+        """Query the transactions for current month"""
+        # query = 'QUERY(TRANSACTIONS!A:E; "select A")'
+        query = "select A, B, C, D, E where D=300"
+        await self._query(query)
 
     async def add_transaction(self, row: list) -> None:
         """Add a transaction to the spreadsheet"""

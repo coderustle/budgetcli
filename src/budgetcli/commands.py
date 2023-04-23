@@ -73,7 +73,9 @@ class ListTransactionCommand(Command):
 
         if self.manager is not None:
             with task_progress(description="Processing.."):
-                transactions = asyncio.run(self.manager.list_transactions(self.rows))
+                transactions = asyncio.run(
+                    self.manager.list_transactions(self.rows)
+                )
                 for row in transactions:
                     income = f"{CURRENCY} {row[3]}"
                     outcome = f"{CURRENCY} {row[4]}"

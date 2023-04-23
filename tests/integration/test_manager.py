@@ -19,3 +19,12 @@ class TestTransactionDataManager:
         if manager:
             result = await manager.create_sheet("TRANSACTIONS")
             assert not result
+
+    @pytest.mark.asyncio
+    async def test_get_transactions(self):
+        """Test query transactions"""
+        manager = ManagerFactory.create_manager_for("transactions")
+        if manager:
+            result = await manager.get_transactions_current_month()
+            print(result)
+            assert result

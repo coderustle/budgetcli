@@ -16,3 +16,4 @@ SCOPES = ["https://www.googleapis.com/auth/spreadsheets"]
 API_SERVICE_NAME = "sheets"
 API_VERSION = "v4"
 API_URL = "https://sheets.googleapis.com/v4/spreadsheets"
+GVI_URL = "https://docs.google.com/spreadsheets/d"
