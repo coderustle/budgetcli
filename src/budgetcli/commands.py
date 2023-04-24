@@ -40,26 +40,8 @@ class AddTransactionCommand(Command):
 
 
 class ListTransactionCommand(Command):
-    def __init__(self, rows: int):
+    def __init__(self, rows: int, month: int | None):
         self.rows = rows
-        self.manager = ManagerFactory.create_manager_for("transactions")
-
-    def execute(self):
-        table = get_transaction_table()
-        if self.manager is not None:
-            with task_progress(description="Processing.."):
-                transactions = asyncio.run(
-                    self.manager.list_transactions(self.rows)
-                )
-                for row in transactions:
-                    income = f"{CURRENCY} {row[3]}"
-                    outcome = f"{CURRENCY} {row[4]}"
-                    table.add_row(row[0], row[1], row[2], income, outcome)
-        print(table)
-
-
-class GetTransactionsForMonthCommand(Command):
-    def __init__(self, month: int):
         self.month = month
         self.manager = ManagerFactory.create_manager_for("transactions")
 
@@ -67,9 +49,15 @@ class GetTransactionsForMonthCommand(Command):
         table = get_transaction_table()
         if self.manager is not None:
             with task_progress(description="Processing.."):
-                transactions = asyncio.run(
-                    self.manager.get_transactions_for_month(3)
-                )
+                transactions = []
+                if self.month:
+                    transactions = asyncio.run(
+                        self.manager.list_transactions(self.rows)
+                    )
+                else:
+                    transactions = asyncio.run(
+                        self.manager.get_transactions_for_month(self.month)
+                    )
                 for row in transactions:
                     income = f"{CURRENCY} {row[3]}"
                     outcome = f"{CURRENCY} {row[4]}"
