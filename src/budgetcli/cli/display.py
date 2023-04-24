@@ -10,20 +10,27 @@ app = typer.Typer()
 def validate_month(value: str | None) -> str | None:
     """A callback function to validate month input"""
     if value:
-        value_str = value.lower()
-        for i, month in enumerate(calendar.month_name[1:], 1):
-            abbr = calendar.month_abbr[i].lower()
-            if value_str != month.lower() or value_str != abbr:
-                error = "Invalid month name. Ex: March or Mar"
-                raise typer.BadParameter(error)
-            else:
-                return value
+        value = value.lower()
+        month_names = [month.lower() for month in calendar.month_name[1:]]
+        month_abbr = [abbr.lower() for abbr in calendar.month_abbr[1:]]
+        if value in month_names or value in month_abbr:
+            return value
+        else:
+            error = f"Invalid month name {value}. Ex: March or Mar"
+            raise typer.BadParameter(error)
     return value
 
 
-RowsOption = typer.Option(100, min=1, max=100, help="Number of rows")
+RowsOption = typer.Option(
+    100,
+    min=1,
+    max=100,
+    help="Number of transaction rows to display",
+)
 MonthOption = typer.Option(
-    "", help="The name of the month", callback=validate_month
+    "",
+    help="The name of the month eg: April or Apr",
+    callback=validate_month,
 )
 
 

@@ -52,11 +52,11 @@ class ListTransactionCommand(Command):
                 transactions = []
                 if self.month:
                     transactions = asyncio.run(
-                        self.manager.list_transactions(self.rows)
+                        self.manager.get_transactions_for_month(self.month)
                     )
                 else:
                     transactions = asyncio.run(
-                        self.manager.get_transactions_for_month(self.month)
+                        self.manager.list_transactions(self.rows)
                     )
                 for row in transactions:
                     income = f"{CURRENCY} {row[3]}"
