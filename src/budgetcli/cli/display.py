@@ -1,6 +1,7 @@
 import calendar
 import typer
 
+from ..utils.config import get_config_list
 from ..commands import ListTransactionCommand
 from ..utils import dates
 
@@ -40,6 +41,13 @@ def transactions(rows: int = RowsOption, month: str = MonthOption):
     month_number = dates.get_month_number(month)
     command = ListTransactionCommand(rows, month_number)
     command.execute()
+
+
+@app.command()
+def config():
+    """List all the settings from config.json"""
+
+    get_config_list()
 
 
 @app.callback(invoke_without_command=True)

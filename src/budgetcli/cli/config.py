@@ -11,16 +11,9 @@ from ..settings import (
     CREDENTIALS_SECRET_PATH,
     USER_CONFIG_DIR,
 )
-from ..utils.config import get_config_list, update_config
+from ..utils.config import update_config
 
 app = typer.Typer()
-
-
-@app.command(name="list")
-def list_config():
-    """List all the settings from config.json"""
-
-    get_config_list()
 
 
 @app.command()
@@ -33,7 +26,7 @@ def spreadsheet_id(
 
 
 @app.command()
-def credentials_path(
+def credentials_file_path(
     path: str = typer.Argument(
         ..., help="The absolute path to client_secret.json"
     )
