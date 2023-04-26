@@ -6,9 +6,9 @@ A simple terminal app written in Python to manage budgets and expenses in Google
 
 ## Installation
 
-1. Clone the repository.
-2. Change directory to local repository
-3. Run the pip install command `pip install .`
+```
+pip install budgetcli
+```
 
 In order to use the app you need first to enable Google Spreadsheet API and to generate app credentials with a
 `client_id` and a `client_secret`.
