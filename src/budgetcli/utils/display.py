@@ -1,6 +1,7 @@
 import time
 from contextlib import contextmanager
 
+from rich import box, print
 from rich.table import Table
 from rich.progress import Progress, SpinnerColumn, TextColumn
 
@@ -23,7 +24,7 @@ def task_progress(description: str):
 
 def get_transaction_table() -> Table:
     """Return table to display the transaction date"""
-    table = Table(show_edge=False, header_style="blue")
+    table = Table(header_style="blue", box=box.HORIZONTALS)
     table.add_column("Date", justify="left", no_wrap=True)
     table.add_column("Category", justify="left", no_wrap=True)
     table.add_column("Description", justify="left", no_wrap=True)
