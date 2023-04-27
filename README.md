@@ -59,13 +59,13 @@ budgetcli add outcome 2023-03-20 rent "short description" 400
 ```
 budgetcli list transactions 
 ```
-![Transactions](./images/transactionsA)
+![Transactions](./images/transactionsA.png)
 
 **List only first 10 transactions**
 ```
 budgetcli list transactions --rows=10 
 ```
-![Transactions](./images/transactionsB)
+![Transactions](./images/transactionsB.png)
 
 **List transactions from a specific month**
 ```
