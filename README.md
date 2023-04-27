@@ -26,7 +26,7 @@ budgetcli config spreadsheet-id ID
 
 **Copy the client_secret_XXX.json to app config**
 ```
-budgetcli config credentials-path /path/to/client_secret.json
+budgetcli config credentials-file-path /path/to/client_secret.json
 ```
 
 **Authorize the app access to spreadsheet data**
@@ -41,15 +41,30 @@ budgetcli init
 
 ## Usage
 
+The commands follow the below structure.
+```
+budgetcli <VERB> <OBJECT> <OPTIONS>
+```
+
 **Add an income**
 ```
 budgetcli add income 2023-03-20 salary "short description" 4000
 ```
-![income](./images/income.gif)
 
 **Add an outcome**
 ```
 budgetcli add outcome 2023-03-20 rent "short description" 400
 ```
-![outcome](./images/outcome.gif)
+**List transactions. Default first 100 rows**
+```
+budgetcli list transactions 
+```
 
+**List only first 10 transactions**
+```
+budgetcli list transactions --rows=10 
+```
+**List transactions from a specific month**
+```
+budgetcli list transactions --month=April 
+```
