@@ -9,7 +9,7 @@ from google.oauth2.credentials import Credentials
 
 from .auth import load_user_token
 from .settings import API_URL, GVI_URL
-from .utils.config import get_config
+from .utils.config import get_config, update_config
 
 T = TypeVar("T", bound="AbstractDataManager")
 
@@ -53,9 +53,9 @@ class AbstractDataManager(ABC, Generic[T]):
             status = err.response.status_code
             pprint(f"Error calling {req_url}, http status: {status}")
 
-    async def _query(self, query: str) -> list[dict[str, list]] | None:
+    async def _query(self, query: str, sheet_index: int) -> list[dict[str, list]] | None:
         """A method to use Goolge Visualization API"""
-        params = f"gid={1}&tq={query}&tqx=out:json"
+        params = f"gid={sheet_index}&tq={query}&tqx=out:json"
         url = f"{self.gvi_url}?{params}"
         response = await self.session.get(url)
         try:
@@ -97,6 +97,25 @@ class AbstractDataManager(ABC, Generic[T]):
             pprint(f"Error calling {req_url}, http status: {status}")
         return False
 
+    async def get_sheet_index(self, title: str) -> int:
+        """Get google sheet index position"""
+        params = "fields=sheets"
+        url = f"{self.base_url}?{params}"
+        response = await self.session.get(url)
+        try:
+            response.raise_for_status()
+            data = response.json()
+            sheets = data.get("sheets")
+            for sheet in sheets:
+                if sheet["properties"]["title"] == title:
+                    sheet_index = sheet["properties"]["index"]
+                    return sheet_index
+        except httpx.HTTPStatusError as err:
+            req_url = err.request.url
+            status = err.response.status_code
+            pprint(f"Error calling {req_url}, http status: {status}")
+        return -1
+
     async def create_sheet(self, title: str) -> bool:
         """Create sheet with the given title"""
         url = f"{self.base_url}/:batchUpdate"
@@ -122,22 +141,30 @@ class TransactionDataManager(AbstractDataManager):
         """Create TRANSACTIONS sheet if not exists"""
         check_task = asyncio.create_task(self.sheet_exists("TRANSACTIONS"))
         create_task = asyncio.create_task(self.create_sheet("TRANSACTIONS"))
+        index_task = asyncio.create_task(self.get_sheet_index("TRANSACTIONS"))
         try:
             sheet = await asyncio.wait_for(check_task, timeout=5)
+            index = await asyncio.wait_for(index_task, timeout=5)
+            if index:
+                index = str(index)
+                update_config("transactions_sheet_index", index)
             if not sheet:
                 await asyncio.wait_for(create_task, timeout=5)
         except asyncio.TimeoutError:
             print("Timeout error")
 
     async def get_transactions_for_month(
-        self, month: int
+        self, month: int 
     ) -> list[list[str]] | None:
         """Query the transactions for current month"""
         month = month - 1  # month query starts from 0 to 11
         query = f"select A,B,C,D,E where month(A)={month}"
         transactions = []
-        rows = await self._query(query)
-        pprint(rows, expand_all=True)
+        sheet_index = get_config("transactions_sheet_index")
+        rows = None
+        if sheet_index:
+            index = int(sheet_index)
+            rows = await self._query(query, index)
         if rows:
             for row in rows:
                 transaction = []

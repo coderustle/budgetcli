@@ -22,6 +22,14 @@ class TestTransactionDataManager:
             assert not result
 
     @pytest.mark.asyncio
+    async def test_get_sheet_index(self):
+        """Test get google sheet index position"""
+        manager = ManagerFactory.create_manager_for("transactions")
+        if manager:
+            result = await manager.get_sheet_index("TRANSACTIONS")
+            assert result >= 0
+
+    @pytest.mark.asyncio
     async def test_get_transactions(self):
         """Test query transactions"""
         manager = ManagerFactory.create_manager_for("transactions")
