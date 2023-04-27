@@ -137,14 +137,14 @@ class TransactionDataManager(AbstractDataManager):
         query = f"select A,B,C,D,E where month(A)={month}"
         transactions = []
         rows = await self._query(query)
+        pprint(rows, expand_all=True)
         if rows:
             for row in rows:
                 transaction = []
                 for cel in row.get("c", []):
                     if "Date(" in str(cel.get("v")):
-                        clean_date = cel.get("v").replace("Date(", "")[:-1]
-                        clean_date = clean_date.replace(",", "-")
-                        transaction.append(clean_date)
+                        date = cel.get("f")
+                        transaction.append(date)
                     else:
                         transaction.append(cel.get("v"))
                 transactions.append(transaction)
