@@ -64,7 +64,7 @@ budgetcli list transactions
 budgetcli list transactions --rows=10 
 ```
 
-**List transactions from a specific month**
+**List transactions for a specific month**
 ```
 budgetcli list transactions --month=April 
 ```
