@@ -50,7 +50,6 @@ budgetcli <VERB> <OBJECT> <OPTIONS>
 ```
 budgetcli add income 2023-03-20 salary "short description" 4000
 ```
-
 **Add an outcome**
 ```
 budgetcli add outcome 2023-03-20 rent "short description" 400
@@ -59,13 +58,11 @@ budgetcli add outcome 2023-03-20 rent "short description" 400
 ```
 budgetcli list transactions 
 ```
-![Transactions](./images/transactionsA.png)
-
 **List only first 10 transactions**
+
 ```
 budgetcli list transactions --rows=10 
 ```
-![Transactions](./images/transactionsB.png)
 
 **List transactions from a specific month**
 ```
