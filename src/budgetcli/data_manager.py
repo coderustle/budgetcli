@@ -165,6 +165,8 @@ class TransactionDataManager(AbstractDataManager):
         if sheet_index:
             index = int(sheet_index)
             rows = await self._query(query, index)
+        else:
+            rows = await self._query(query, 0)
         if rows:
             for row in rows:
                 transaction = []
