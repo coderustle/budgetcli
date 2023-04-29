@@ -116,19 +116,22 @@ class AbstractDataManager(ABC, Generic[T]):
             pprint(f"Error calling {req_url}, http status: {status}")
         return -1
 
-    async def create_sheet(self, title: str) -> bool:
+    async def create_sheet(self, title: str) -> dict[str, str] | None:
         """Create sheet with the given title"""
         url = f"{self.base_url}/:batchUpdate"
         body = {"requests": [{"addSheet": {"properties": {"title": title}}}]}
         response = await self.session.post(url, json=body)
         try:
             response.raise_for_status()
-            return True
+            data = response.json()
+            replies = data.get('replies', []) 
+            sheet = replies[0].get("addSheet")
+            properties = sheet.get("properties")
+            return properties
         except httpx.HTTPStatusError as err:
             req_url = err.request.url
             status = err.response.status_code
             pprint(f"Error calling {req_url}, http status: {status}")
-        return False
 
 
 class TransactionDataManager(AbstractDataManager):
@@ -139,17 +142,19 @@ class TransactionDataManager(AbstractDataManager):
 
     async def init_sheet(self):
         """Create TRANSACTIONS sheet if not exists"""
-        check_task = asyncio.create_task(self.sheet_exists("TRANSACTIONS"))
-        create_task = asyncio.create_task(self.create_sheet("TRANSACTIONS"))
-        index_task = asyncio.create_task(self.get_sheet_index("TRANSACTIONS"))
+        check = self.sheet_exists("TRANSACTIONS")
+        index = self.get_sheet_index("TRANSACTIONS")
         try:
-            sheet = await asyncio.wait_for(check_task, timeout=5)
-            index = await asyncio.wait_for(index_task, timeout=5)
-            if index:
-                index = str(index)
-                update_config("transactions_sheet_index", index)
-            if not sheet:
-                await asyncio.wait_for(create_task, timeout=5)
+            exists = await asyncio.wait_for(check, timeout=5)
+            if exists:
+                index = await asyncio.wait_for(index, timeout=5)
+                update_config("transactions_sheet_index", str(index))
+            else:
+                create = self.create_sheet("TRANSACTIONS")
+                properties = await asyncio.wait_for(create, timeout=5)
+                if properties:
+                    index =  properties.get("index")
+                    update_config("transactions_sheet_index", str(index))
         except asyncio.TimeoutError:
             print("Timeout error")
 
