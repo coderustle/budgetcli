@@ -3,7 +3,7 @@ This module contains the classes and functions to implement transactions
 """
 
 from dataclasses import dataclass
-from datetime import datetime, date
+from datetime import date, datetime
 from decimal import Decimal, InvalidOperation
 from enum import Enum
 
@@ -16,6 +16,7 @@ def validate_amount(amount: str) -> Decimal | None:
         return Decimal(amount)
     except InvalidOperation:
         print(":x: Invalid amount provided")
+    return None
 
 
 def validate_date(date_str: str) -> date | None:
@@ -29,12 +30,14 @@ def validate_date(date_str: str) -> date | None:
             pass
     print(":x: Invalid date provided")
     print(f"Supported formats are: {'  '.join(date_formats)}")
+    return None
 
 
 class TransactionType(Enum):
     """
     An enum to represent the type of transaction
     """
+
     INCOME = "income"
     OUTCOME = "outcome"
 
@@ -44,6 +47,7 @@ class Transaction:
     """
     A class to represent a transaction
     """
+
     date: date
     category: str
     description: str

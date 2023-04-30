@@ -15,3 +15,4 @@ def get_month_number(month: str) -> int | None:
         abbr = calendar.month_abbr[i].lower()
         if month_str == month.lower() or month_str == abbr:
             return i
+    return None
