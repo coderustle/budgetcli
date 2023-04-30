@@ -11,7 +11,7 @@ from rich import print
 
 
 def validate_amount(amount: str) -> Decimal | None:
-    """An utility function to validate the transaction amount"""
+    """A utility function to validate the transaction amount"""
     try:
         return Decimal(amount)
     except InvalidOperation:
@@ -19,11 +19,11 @@ def validate_amount(amount: str) -> Decimal | None:
 
 
 def validate_date(date_str: str) -> date | None:
-    """An utility function to validate the transaction dates"""
+    """A utility function to validate the transaction dates"""
     date_formats = ["%Y-%m-%d", "%Y/%m/%d", "%d/%m/%Y", "%d-%m-%Y"]
-    for format in date_formats:
+    for date_format in date_formats:
         try:
-            parsed_date = datetime.strptime(date_str, format).date()
+            parsed_date = datetime.strptime(date_str, date_format).date()
             return parsed_date
         except ValueError:
             pass
@@ -32,12 +32,18 @@ def validate_date(date_str: str) -> date | None:
 
 
 class TransactionType(Enum):
+    """
+    An enum to represent the type of transaction
+    """
     INCOME = "income"
     OUTCOME = "outcome"
 
 
 @dataclass
 class Transaction:
+    """
+    A class to represent a transaction
+    """
     date: date
     category: str
     description: str
@@ -46,6 +52,9 @@ class Transaction:
 
     @classmethod
     def from_sheet_row(cls, row: list):
+        """
+        A method to create a transaction from a list of strings
+        """
         parsed_date = validate_date(row[0])
         if parsed_date:
             return cls(
@@ -57,6 +66,9 @@ class Transaction:
             )
 
     def to_sheet_row(self):
+        """
+        A method to convert the transaction to a list of strings
+        """
         date_format = "%d-%m-%Y"
         return [
             self.date.strftime(date_format),

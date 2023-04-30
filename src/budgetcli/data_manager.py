@@ -17,6 +17,9 @@ SPREADSHEET_ID = get_config("spreadsheet_id")
 
 
 class AbstractDataManager(ABC, Generic[T]):
+    """
+    Abstract class for data managers
+    """
     def __init__(self):
         self.base_url = f"{API_URL}/{SPREADSHEET_ID}"
         self.gvi_url = f"{GVI_URL}/{SPREADSHEET_ID}/gviz/tq"
@@ -38,6 +41,7 @@ class AbstractDataManager(ABC, Generic[T]):
             req_url = err.request.url
             status = err.response.status_code
             pprint(f"Error calling {req_url}, http status: {status}")
+        return None
 
     async def _list(self, range: str) -> dict[str, str] | None:
         """List data from a given range"""
@@ -52,6 +56,7 @@ class AbstractDataManager(ABC, Generic[T]):
             req_url = err.request.url
             status = err.response.status_code
             pprint(f"Error calling {req_url}, http status: {status}")
+        return
 
     async def _query(
         self, query: str, sheet_index: int
