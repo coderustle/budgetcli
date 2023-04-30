@@ -81,3 +81,28 @@ class Transaction:
             str(self.income),
             str(self.outcome),
         ]
+
+
+@dataclass
+class Category:
+    """
+    Represents a category object
+    """
+
+    name: str
+
+    def __post_init__(self):
+        self.name = self.name.lower()
+
+    @classmethod
+    def from_sheet_row(cls, row: list):
+        """
+        Create a category object from a list of strings
+        """
+        return cls(row[0])
+
+    def to_sheet_row(self) -> list[str]:
+        """
+        Return a list with values
+        """
+        return [self.name]

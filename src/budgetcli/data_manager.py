@@ -190,11 +190,13 @@ class TransactionDataManager(AbstractDataManager):
             for row in rows:
                 transaction = []
                 for cel in row.get("c", []):
-                    if "Date(" in str(cel.get("v")):
+                    if cel and "Date(" in str(cel.get("v")):
                         date = cel.get("f")
                         transaction.append(date)
-                    else:
+                    elif cel:
                         transaction.append(cel.get("v"))
+                    else:
+                        transaction.append("")
                 transactions.append(transaction)
         return transactions
 
@@ -214,6 +216,10 @@ class TransactionDataManager(AbstractDataManager):
             if isinstance(result, list) and check_rows and check_columns:
                 return result
         return []
+
+
+class CategoryDataManager(AbstractDataManager):
+    pass
 
 
 class ManagerFactory:

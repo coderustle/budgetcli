@@ -1,7 +1,7 @@
-from decimal import Decimal
 from datetime import datetime
+from decimal import Decimal
 
-from budgetcli.models import Transaction
+from budgetcli.models import Category, Transaction
 
 
 def test_transaction_instance():
@@ -28,3 +28,24 @@ def test_transaction_from_sheet_row():
         ]
     )
     assert isinstance(transaction, Transaction)
+
+class TestCategoryModel:
+
+    def test_category_instance(self):
+        """Test category instance"""
+        category = Category(name="Salary")
+        assert isinstance(category, Category)
+        assert category.name == "salary"
+
+    def test_category_from_sheet_row(self):
+        """Test create categor instance from list of string"""
+        row = ["salary"]
+        category = Category.from_sheet_row(row)
+        assert isinstance(category, Category)
+
+    def test_to_sheet_row(self):
+        """Test convert category to sheet row"""
+        category = Category(name="Salary")
+        row = category.to_sheet_row()
+        assert isinstance(row, list)
+        assert "salary" in row
