@@ -1,7 +1,7 @@
 import asyncio
 import json
-from abc import ABC
-from typing import Any, Generic, TypeVar
+from abc import ABC, abstractmethod
+from typing import Any, Coroutine, Generic, TypeVar
 
 import httpx
 from google.oauth2.credentials import Credentials
@@ -143,6 +143,10 @@ class AbstractDataManager(ABC, Generic[T]):
             pprint(f"Error calling {req_url}, http status: {status}")
         return None
 
+    @abstractmethod
+    async def init_sheet(self) -> None:
+        raise NotImplementedError
+
 
 class TransactionDataManager(AbstractDataManager):
     SHEET_NAME = "TRANSACTIONS!"
@@ -150,17 +154,17 @@ class TransactionDataManager(AbstractDataManager):
     LAST_COLUMN = "E"
     TRANSACTIONS_RANGE = f"{SHEET_NAME}{FIRST_COLUMN}1:{LAST_COLUMN}"
 
-    async def init_sheet(self):
+    async def init_sheet(self) -> None:
         """Create TRANSACTIONS sheet if not exists"""
-        check = self.sheet_exists("TRANSACTIONS")
-        index = self.get_sheet_index("TRANSACTIONS")
+        check: Coroutine = self.sheet_exists("TRANSACTIONS")
+        index: Coroutine = self.get_sheet_index("TRANSACTIONS")
         try:
             exists = await asyncio.wait_for(check, timeout=5)
             if exists:
                 index = await asyncio.wait_for(index, timeout=5)
                 update_config("transactions_sheet_index", str(index))
             else:
-                create = self.create_sheet("TRANSACTIONS")
+                create: Coroutine = self.create_sheet("TRANSACTIONS")
                 properties = await asyncio.wait_for(create, timeout=5)
                 if properties:
                     index = properties.get("index")

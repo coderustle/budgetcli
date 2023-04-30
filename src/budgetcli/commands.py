@@ -3,9 +3,9 @@ from abc import ABC, abstractmethod
 
 from rich import print
 
+from .data_manager import ManagerFactory
 from .models import Transaction
 from .settings import CURRENCY
-from .data_manager import ManagerFactory
 from .utils.display import get_transaction_table, task_progress
 
 
