@@ -1,7 +1,6 @@
 # Budget CLI
 
-[![Build](https://github.com/madalinpopa/budgetcli/actions/workflows/build.yaml/badge.svg)](https://github.com/madalinpopa/budgetcli/actions/workflows/build.yaml)
-
+[![Build](https://github.com/madalinpopa/budgetcli/actions/workflows/build.yaml/badge.svg)](https://github.com/madalinpopa/budgetcli/actions/workflows/build.yaml)[![Downloads](https://img.shields.io/pypi/dd/budgetcli)](https://img.shields.io/pypi/dd/budgetcli)
 A simple terminal app written in Python to manage budgets and expenses in Google Sheet.
 
 ## Installation
