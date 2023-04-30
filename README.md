@@ -1,7 +1,13 @@
 # Budget CLI
 
-[![Build](https://github.com/madalinpopa/budgetcli/actions/workflows/build.yaml/badge.svg)](https://github.com/madalinpopa/budgetcli/actions/workflows/build.yaml)[![Downloads](https://img.shields.io/pypi/dd/budgetcli)](https://img.shields.io/pypi/dd/budgetcli)
+[![Build](https://github.com/madalinpopa/budgetcli/actions/workflows/build.yaml/badge.svg)](https://github.com/madalinpopa/budgetcli/actions/workflows/build.yaml) [![Downloads](https://img.shields.io/pypi/dd/budgetcli)](https://img.shields.io/pypi/dd/budgetcli)
+
 A simple terminal app written in Python to manage budgets and expenses in Google Sheet.
+
+## Features
+
+- Ability to track incomes and expenses as transactions
+- Ability to list transactions by month
 
 ## Installation
 
