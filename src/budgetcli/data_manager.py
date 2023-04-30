@@ -1,11 +1,11 @@
 import asyncio
 import json
-from typing import Any, TypeVar, Generic
 from abc import ABC
-from rich.pretty import pprint
+from typing import Any, Generic, TypeVar
 
 import httpx
 from google.oauth2.credentials import Credentials
+from rich.pretty import pprint
 
 from .auth import load_user_token
 from .settings import API_URL, GVI_URL
@@ -20,6 +20,7 @@ class AbstractDataManager(ABC, Generic[T]):
     """
     Abstract class for data managers
     """
+
     def __init__(self):
         self.base_url = f"{API_URL}/{SPREADSHEET_ID}"
         self.gvi_url = f"{GVI_URL}/{SPREADSHEET_ID}/gviz/tq"
@@ -56,7 +57,7 @@ class AbstractDataManager(ABC, Generic[T]):
             req_url = err.request.url
             status = err.response.status_code
             pprint(f"Error calling {req_url}, http status: {status}")
-        return
+        return None
 
     async def _query(
         self, query: str, sheet_index: int
@@ -76,11 +77,12 @@ class AbstractDataManager(ABC, Generic[T]):
             req_url = err.request.url
             status = err.response.status_code
             pprint(f"Error calling {req_url}, http status: {status}")
+        return None
 
     @staticmethod
     def get_auth_headers() -> dict:
         """Get the authentication headers from google credentials"""
-        headers = {}
+        headers: dict[str, str] = {}
         credentials: Credentials | None = load_user_token()
         if credentials:
             credentials.apply(headers=headers)
@@ -139,6 +141,7 @@ class AbstractDataManager(ABC, Generic[T]):
             req_url = err.request.url
             status = err.response.status_code
             pprint(f"Error calling {req_url}, http status: {status}")
+        return None
 
 
 class TransactionDataManager(AbstractDataManager):
@@ -219,3 +222,4 @@ class ManagerFactory:
                 pass
             case _:
                 pprint("No manager found")
+        return None
