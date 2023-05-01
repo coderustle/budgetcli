@@ -1,13 +1,13 @@
 """
-This module contains the commands for adding transactions to the google sheet
+This module contains the commands for adding transactions to the Google sheet
 """
 from datetime import date as date_obj
 from decimal import Decimal
 
 import typer
 
-from ..commands import AddTransactionCommand
-from ..models import Transaction, validate_amount, validate_date
+from ..commands import AddTransactionCommand, AddCategoryCommand
+from ..models import Transaction, Category, validate_amount, validate_date
 from ..utils.dates import get_today_date
 
 app = typer.Typer()
@@ -21,14 +21,22 @@ AmountArgument = typer.Argument(..., help="The amount of the transaction")
 
 
 @app.command()
+def category(name: str = CategoryArgument):
+    """Add a category to Google sheet"""
+    if name:
+        cat = Category(name)
+        command = AddCategoryCommand(cat)
+        command.execute()
+
+
+@app.command()
 def income(
     amount: str = AmountArgument,
     category: str = CategoryArgument,
     description: str = DescriptionArgument,
     date: str = DateArgument,
 ):
-    """Add an income transaction to the google sheet"""
-    transaction: Transaction | None = None
+    """Add an income transaction to the Google sheet"""
     parsed_date: date_obj | None = validate_date(date)
     parsed_amount: Decimal | None = validate_amount(amount)
 
@@ -46,8 +54,7 @@ def outcome(
     description: str = DescriptionArgument,
     date: str = DateArgument,
 ):
-    """Add an outcome transaction to the google sheet"""
-    transaction: Transaction | None = None
+    """Add an outcome transaction to the Google sheet"""
     parsed_date: date_obj | None = validate_date(date)
     parsed_amount: Decimal | None = validate_amount(amount)
 
@@ -60,7 +67,7 @@ def outcome(
 
 @app.callback(invoke_without_command=True)
 def main(ctx: typer.Context):
-    """Add transactions to the google sheet"""
+    """Add transactions to the Google sheet"""
     if not ctx.invoked_subcommand:
         ctx.get_help()
 

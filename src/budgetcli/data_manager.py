@@ -149,10 +149,10 @@ class AbstractDataManager(ABC, Generic[T]):
 
 
 class TransactionDataManager(AbstractDataManager):
-    SHEET_NAME = "TRANSACTIONS!"
+    SHEET_NAME = "TRANSACTIONS"
     FIRST_COLUMN = "A"
     LAST_COLUMN = "E"
-    TRANSACTIONS_RANGE = f"{SHEET_NAME}{FIRST_COLUMN}1:{LAST_COLUMN}"
+    TRANSACTIONS_RANGE = f"{SHEET_NAME}!{FIRST_COLUMN}1:{LAST_COLUMN}"
 
     async def init_sheet(self) -> None:
         """Create TRANSACTIONS sheet if not exists"""
@@ -176,7 +176,7 @@ class TransactionDataManager(AbstractDataManager):
         self, month: int
     ) -> list[list[str]] | None:
         """Query the transactions for current month"""
-        month = month - 1  # month query starts from 0 to 11
+        month -= 1  # month query starts from 0 to 11
         query = f"select A,B,C,D,E where month(A)={month}"
         transactions = []
         sheet_index = get_config("transactions_sheet_index")
@@ -220,6 +220,9 @@ class TransactionDataManager(AbstractDataManager):
 
 class CategoryDataManager(AbstractDataManager):
     SHEET_NAME = "CATEGORIES"
+    FIRST_COLUMN = "A"
+    LAST_COLUMN = "A"
+    CATEGORY_RANGE = f"{SHEET_NAME}!{FIRST_COLUMN}1:{LAST_COLUMN}"
 
     async def init_sheet(self) -> None:
         """Create CATEGORY shee if not exists"""
@@ -239,6 +242,10 @@ class CategoryDataManager(AbstractDataManager):
         except asyncio.TimeoutError:
             print("Timeout error")
         return None
+
+    async def add_category(self, row: list) -> None:
+        """Add new category in Google sheet"""
+        await self._append(row=row, range=self.CATEGORY_RANGE)
 
 
 class ManagerFactory:

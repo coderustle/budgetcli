@@ -4,7 +4,7 @@ from abc import ABC, abstractmethod
 from rich import print
 
 from .data_manager import ManagerFactory
-from .models import Transaction
+from .models import Transaction, Category
 from .settings import CURRENCY
 from .utils.display import get_transaction_table, task_progress
 
@@ -13,6 +13,7 @@ class Command(ABC):
     @abstractmethod
     def execute(self) -> None:
         raise NotImplementedError
+
 
 class InitCommand(Command):
     def __init__(self):
@@ -32,6 +33,7 @@ class InitCommand(Command):
 
     def execute(self) -> None:
         asyncio.run(self.init())
+
 
 class AddTransactionCommand(Command):
     def __init__(self, transaction: Transaction):
@@ -75,3 +77,17 @@ class ListTransactionCommand(Command):
                     outcome = f"{CURRENCY} {row[4]}"
                     table.add_row(row[0], row[1], row[2], income, outcome)
         print(table)
+
+
+class AddCategoryCommand(Command):
+    def __init__(self, category: Category):
+        self.category = category
+        self.manager = ManagerFactory.create_manager_for("categories")
+
+    def execute(self) -> None:
+        try:
+            with task_progress(description="Processing.."):
+                row = self.category.to_sheet_row()
+                asyncio.run(self.manager.add_category(row))
+        except AttributeError:
+            print("Init factory manager error")
