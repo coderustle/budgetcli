@@ -28,9 +28,7 @@ class InitCommand(Command):
                 await tra_task
                 print(":heavy_check_mark: Init was completed successfully")
         except AttributeError:
-            print("Init manager error")
-        except asyncio.TimeoutError:
-            print("Timeout error")
+            print("Init factory manager error")
 
     def execute(self) -> None:
         asyncio.run(self.init())
@@ -41,11 +39,14 @@ class AddTransactionCommand(Command):
         self.manager = ManagerFactory.create_manager_for("transactions")
 
     def execute(self):
-        if self.manager is not None:
+        try:
             with task_progress(description="Processing.."):
                 row = self.transaction.to_sheet_row()
                 asyncio.run(self.manager.add_transaction(row))
                 print(":heavy_check_mark: Transaction was added successfully")
+            pass
+        except AttributeError:
+            print("Init factory manager error")
 
 
 class ListTransactionCommand(Command):
