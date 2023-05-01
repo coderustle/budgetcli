@@ -3,9 +3,9 @@ from abc import ABC, abstractmethod
 
 from rich import print
 
-from .models import Transaction
-from .settings import CURRENCY
 from .data_manager import ManagerFactory
+from .models import Transaction, Category
+from .settings import CURRENCY
 from .utils.display import get_transaction_table, task_progress
 
 
@@ -15,15 +15,24 @@ class Command(ABC):
         raise NotImplementedError
 
 
-class InitTransactionCommand(Command):
+class InitCommand(Command):
     def __init__(self):
-        self.manager = ManagerFactory.create_manager_for("transactions")
+        self.tra_manager = ManagerFactory.create_manager_for("transactions")
+        self.cat_manager = ManagerFactory.create_manager_for("categories")
 
-    def execute(self):
-        if self.manager is not None:
+    async def init(self) -> None:
+        try:
+            cat_task = asyncio.create_task(self.cat_manager.init_sheet())
+            tra_task = asyncio.create_task(self.tra_manager.init_sheet())
             with task_progress(description="Processing.."):
-                asyncio.run(self.manager.init_sheet())
+                await cat_task
+                await tra_task
                 print(":heavy_check_mark: Init was completed successfully")
+        except AttributeError:
+            print("Init factory manager error")
+
+    def execute(self) -> None:
+        asyncio.run(self.init())
 
 
 class AddTransactionCommand(Command):
@@ -32,14 +41,19 @@ class AddTransactionCommand(Command):
         self.manager = ManagerFactory.create_manager_for("transactions")
 
     def execute(self):
-        if self.manager is not None:
+        try:
             with task_progress(description="Processing.."):
                 row = self.transaction.to_sheet_row()
                 asyncio.run(self.manager.add_transaction(row))
                 print(":heavy_check_mark: Transaction was added successfully")
+            pass
+        except AttributeError:
+            print("Init factory manager error")
 
 
 class ListTransactionCommand(Command):
+    """Command to list transactions"""
+
     def __init__(self, rows: int, month: int | None):
         self.rows = rows
         self.month = month
@@ -63,3 +77,17 @@ class ListTransactionCommand(Command):
                     outcome = f"{CURRENCY} {row[4]}"
                     table.add_row(row[0], row[1], row[2], income, outcome)
         print(table)
+
+
+class AddCategoryCommand(Command):
+    def __init__(self, category: Category):
+        self.category = category
+        self.manager = ManagerFactory.create_manager_for("categories")
+
+    def execute(self) -> None:
+        try:
+            with task_progress(description="Processing.."):
+                row = self.category.to_sheet_row()
+                asyncio.run(self.manager.add_category(row))
+        except AttributeError:
+            print("Init factory manager error")

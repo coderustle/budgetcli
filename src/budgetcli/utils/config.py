@@ -11,7 +11,7 @@ def get_config_list():
     """Utility function to list all the settings from config.json"""
 
     if os.path.exists(CONFIG_FILE_PATH):
-        config: dict
+        config: dict[str, str]
 
         with open(CONFIG_FILE_PATH) as file:
             config = json.load(file)
@@ -27,20 +27,15 @@ def update_config(setting: str, value: str) -> None:
 
     if os.path.exists(CONFIG_FILE_PATH):
         config: dict
-
         with open(CONFIG_FILE_PATH) as file:
             config = json.load(file)
             config[setting] = value
-
         with open(CONFIG_FILE_PATH, "w") as file:
             json.dump(config, file, indent=2)
-
     else:
         config = {setting: value}
-
         with open(CONFIG_FILE_PATH, "w") as file:
             json.dump(config, file, indent=2)
-
     print(f":heavy_check_mark: {setting} was updated")
 
 
@@ -52,5 +47,5 @@ def get_config(setting: str) -> str | None:
 
         with open(CONFIG_FILE_PATH) as file:
             config = json.load(file)
-
         return config.get(setting)
+    return None

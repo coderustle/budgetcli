@@ -1,11 +1,11 @@
 import asyncio
 import json
-from typing import Any, TypeVar, Generic
-from abc import ABC
-from rich.pretty import pprint
+from abc import ABC, abstractmethod
+from typing import Any, Coroutine, Generic, TypeVar
 
 import httpx
 from google.oauth2.credentials import Credentials
+from rich.pretty import pprint
 
 from .auth import load_user_token
 from .settings import API_URL, GVI_URL
@@ -17,6 +17,10 @@ SPREADSHEET_ID = get_config("spreadsheet_id")
 
 
 class AbstractDataManager(ABC, Generic[T]):
+    """
+    Abstract class for data managers
+    """
+
     def __init__(self):
         self.base_url = f"{API_URL}/{SPREADSHEET_ID}"
         self.gvi_url = f"{GVI_URL}/{SPREADSHEET_ID}/gviz/tq"
@@ -53,6 +57,7 @@ class AbstractDataManager(ABC, Generic[T]):
             req_url = err.request.url
             status = err.response.status_code
             pprint(f"Error calling {req_url}, http status: {status}")
+        return None
 
     async def _query(
         self, query: str, sheet_index: int
@@ -72,11 +77,12 @@ class AbstractDataManager(ABC, Generic[T]):
             req_url = err.request.url
             status = err.response.status_code
             pprint(f"Error calling {req_url}, http status: {status}")
+        return None
 
     @staticmethod
     def get_auth_headers() -> dict:
         """Get the authentication headers from google credentials"""
-        headers = {}
+        headers: dict[str, str] = {}
         credentials: Credentials | None = load_user_token()
         if credentials:
             credentials.apply(headers=headers)
@@ -135,25 +141,30 @@ class AbstractDataManager(ABC, Generic[T]):
             req_url = err.request.url
             status = err.response.status_code
             pprint(f"Error calling {req_url}, http status: {status}")
+        return None
+
+    @abstractmethod
+    async def init_sheet(self) -> None:
+        raise NotImplementedError
 
 
 class TransactionDataManager(AbstractDataManager):
-    SHEET_NAME = "TRANSACTIONS!"
+    SHEET_NAME = "TRANSACTIONS"
     FIRST_COLUMN = "A"
     LAST_COLUMN = "E"
-    TRANSACTIONS_RANGE = f"{SHEET_NAME}{FIRST_COLUMN}1:{LAST_COLUMN}"
+    TRANSACTIONS_RANGE = f"{SHEET_NAME}!{FIRST_COLUMN}1:{LAST_COLUMN}"
 
-    async def init_sheet(self):
+    async def init_sheet(self) -> None:
         """Create TRANSACTIONS sheet if not exists"""
-        check = self.sheet_exists("TRANSACTIONS")
-        index = self.get_sheet_index("TRANSACTIONS")
+        check: Coroutine = self.sheet_exists("TRANSACTIONS")
+        index: Coroutine = self.get_sheet_index("TRANSACTIONS")
         try:
             exists = await asyncio.wait_for(check, timeout=5)
             if exists:
                 index = await asyncio.wait_for(index, timeout=5)
                 update_config("transactions_sheet_index", str(index))
             else:
-                create = self.create_sheet("TRANSACTIONS")
+                create: Coroutine = self.create_sheet("TRANSACTIONS")
                 properties = await asyncio.wait_for(create, timeout=5)
                 if properties:
                     index = properties.get("index")
@@ -165,7 +176,7 @@ class TransactionDataManager(AbstractDataManager):
         self, month: int
     ) -> list[list[str]] | None:
         """Query the transactions for current month"""
-        month = month - 1  # month query starts from 0 to 11
+        month -= 1  # month query starts from 0 to 11
         query = f"select A,B,C,D,E where month(A)={month}"
         transactions = []
         sheet_index = get_config("transactions_sheet_index")
@@ -179,11 +190,13 @@ class TransactionDataManager(AbstractDataManager):
             for row in rows:
                 transaction = []
                 for cel in row.get("c", []):
-                    if "Date(" in str(cel.get("v")):
+                    if cel and "Date(" in str(cel.get("v")):
                         date = cel.get("f")
                         transaction.append(date)
-                    else:
+                    elif cel:
                         transaction.append(cel.get("v"))
+                    else:
+                        transaction.append("")
                 transactions.append(transaction)
         return transactions
 
@@ -205,13 +218,44 @@ class TransactionDataManager(AbstractDataManager):
         return []
 
 
+class CategoryDataManager(AbstractDataManager):
+    SHEET_NAME = "CATEGORIES"
+    FIRST_COLUMN = "A"
+    LAST_COLUMN = "A"
+    CATEGORY_RANGE = f"{SHEET_NAME}!{FIRST_COLUMN}1:{LAST_COLUMN}"
+
+    async def init_sheet(self) -> None:
+        """Create CATEGORY shee if not exists"""
+        check: Coroutine = self.sheet_exists(self.SHEET_NAME)
+        index: Coroutine = self.get_sheet_index(self.SHEET_NAME)
+        try:
+            exists = await asyncio.wait_for(check, timeout=5)
+            if exists:
+                index = await asyncio.wait_for(index, timeout=5)
+                update_config("categories_sheet_index", str(index))
+            else:
+                create: Coroutine = self.create_sheet(self.SHEET_NAME)
+                properties = await asyncio.wait_for(create, timeout=5)
+                if properties:
+                    index = properties.get("index")
+                    update_config("categories_sheet_index", str(index))
+        except asyncio.TimeoutError:
+            print("Timeout error")
+        return None
+
+    async def add_category(self, row: list) -> None:
+        """Add new category in Google sheet"""
+        await self._append(row=row, range=self.CATEGORY_RANGE)
+
+
 class ManagerFactory:
     @staticmethod
-    def create_manager_for(manager_name: str) -> Any | None:
+    def create_manager_for(manager_name: str) -> T | None:
         match manager_name:
             case "transactions":
                 return TransactionDataManager()
             case "categories":
-                pass
+                return CategoryDataManager()
             case _:
                 pprint("No manager found")
+        return None
