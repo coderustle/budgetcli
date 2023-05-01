@@ -29,8 +29,8 @@ def test_transaction_from_sheet_row():
     )
     assert isinstance(transaction, Transaction)
 
-class TestCategoryModel:
 
+class TestCategoryModel:
     def test_category_instance(self):
         """Test category instance"""
         category = Category(name="Salary")

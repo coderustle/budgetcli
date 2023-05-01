@@ -3,7 +3,7 @@ from rich import print
 
 from .auth import get_user_authorization
 from .cli import add, config, display
-from .commands import InitTransactionCommand
+from .commands import InitCommand
 
 # init typer app
 app = typer.Typer()
@@ -19,7 +19,7 @@ def auth():
     """Authorize the app to use the user data"""
     try:
         get_user_authorization()
-        print(":heavy_check_mark: User authorized succesfuly")
+        print(":heavy_check_mark: User authorized successfully")
     except Exception as e:
         print(":x: Error authorizing user")
         print(e)
@@ -27,8 +27,8 @@ def auth():
 
 @app.command()
 def init():
-    """Init the sheets in the google spreadsheets"""
-    command = InitTransactionCommand()
+    """Init the sheets in the Google spreadsheets"""
+    command = InitCommand()
     command.execute()
 
 

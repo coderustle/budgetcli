@@ -219,17 +219,36 @@ class TransactionDataManager(AbstractDataManager):
 
 
 class CategoryDataManager(AbstractDataManager):
-    pass
+    SHEET_NAME = "CATEGORIES"
+
+    async def init_sheet(self) -> None:
+        """Create CATEGORY shee if not exists"""
+        check: Coroutine = self.sheet_exists(self.SHEET_NAME)
+        index: Coroutine = self.get_sheet_index(self.SHEET_NAME)
+        try:
+            exists = await asyncio.wait_for(check, timeout=5)
+            if exists:
+                index = await asyncio.wait_for(index, timeout=5)
+                update_config("categories_sheet_index", str(index))
+            else:
+                create: Coroutine = self.create_sheet(self.SHEET_NAME)
+                properties = await asyncio.wait_for(create, timeout=5)
+                if properties:
+                    index = properties.get("index")
+                    update_config("categories_sheet_index", str(index))
+        except asyncio.TimeoutError:
+            print("Timeout error")
+        return None
 
 
 class ManagerFactory:
     @staticmethod
-    def create_manager_for(manager_name: str) -> Any | None:
+    def create_manager_for(manager_name: str) -> T | None:
         match manager_name:
             case "transactions":
                 return TransactionDataManager()
             case "categories":
-                pass
+                return CategoryDataManager()
             case _:
                 pprint("No manager found")
         return None

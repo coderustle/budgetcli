@@ -14,17 +14,26 @@ class Command(ABC):
     def execute(self) -> None:
         raise NotImplementedError
 
-
-class InitTransactionCommand(Command):
+class InitCommand(Command):
     def __init__(self):
-        self.manager = ManagerFactory.create_manager_for("transactions")
+        self.tra_manager = ManagerFactory.create_manager_for("transactions")
+        self.cat_manager = ManagerFactory.create_manager_for("categories")
 
-    def execute(self):
-        if self.manager is not None:
+    async def init(self) -> None:
+        try:
+            cat_task = asyncio.create_task(self.cat_manager.init_sheet())
+            tra_task = asyncio.create_task(self.tra_manager.init_sheet())
             with task_progress(description="Processing.."):
-                asyncio.run(self.manager.init_sheet())
+                await cat_task
+                await tra_task
                 print(":heavy_check_mark: Init was completed successfully")
+        except AttributeError:
+            print("Init manager error")
+        except asyncio.TimeoutError:
+            print("Timeout error")
 
+    def execute(self) -> None:
+        asyncio.run(self.init())
 
 class AddTransactionCommand(Command):
     def __init__(self, transaction: Transaction):
@@ -40,6 +49,8 @@ class AddTransactionCommand(Command):
 
 
 class ListTransactionCommand(Command):
+    """Command to list transactions"""
+
     def __init__(self, rows: int, month: int | None):
         self.rows = rows
         self.month = month
