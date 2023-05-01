@@ -38,6 +38,7 @@ class AbstractDataManager(ABC, Generic[T]):
             req_url = err.request.url
             status = err.response.status_code
             pprint(f"Error calling {req_url}, http status: {status}")
+        return None
 
     async def _list(self, range: str) -> dict[str, str] | None:
         """List data from a given range"""
@@ -53,7 +54,9 @@ class AbstractDataManager(ABC, Generic[T]):
             status = err.response.status_code
             pprint(f"Error calling {req_url}, http status: {status}")
 
-    async def _query(self, query: str, sheet_index: int) -> list[dict[str, list]] | None:
+    async def _query(
+        self, query: str, sheet_index: int
+    ) -> list[dict[str, list]] | None:
         """A method to use Goolge Visualization API"""
         params = f"gid={sheet_index}&tq={query}&tqx=out:json"
         url = f"{self.gvi_url}?{params}"
@@ -124,7 +127,7 @@ class AbstractDataManager(ABC, Generic[T]):
         try:
             response.raise_for_status()
             data = response.json()
-            replies = data.get('replies', []) 
+            replies = data.get("replies", [])
             sheet = replies[0].get("addSheet")
             properties = sheet.get("properties")
             return properties
@@ -153,13 +156,13 @@ class TransactionDataManager(AbstractDataManager):
                 create = self.create_sheet("TRANSACTIONS")
                 properties = await asyncio.wait_for(create, timeout=5)
                 if properties:
-                    index =  properties.get("index")
+                    index = properties.get("index")
                     update_config("transactions_sheet_index", str(index))
         except asyncio.TimeoutError:
             print("Timeout error")
 
     async def get_transactions_for_month(
-        self, month: int 
+        self, month: int
     ) -> list[list[str]] | None:
         """Query the transactions for current month"""
         month = month - 1  # month query starts from 0 to 11
