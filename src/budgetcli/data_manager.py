@@ -21,17 +21,52 @@ class AbstractDataManager(ABC, Generic[T]):
     Abstract class for data managers
     """
 
+    PARAMS = [
+        "valueInputOption=USER_ENTERED",
+        f"includeValuesInResponse={True}",
+    ]
+
     def __init__(self):
         self.base_url = f"{API_URL}/{SPREADSHEET_ID}"
         self.gvi_url = f"{GVI_URL}/{SPREADSHEET_ID}/gviz/tq"
         self.session = httpx.AsyncClient()
         self.session.headers.update(self.get_auth_headers())
+        self.default_params = ["?".join(param) for param in self.PARAMS]
 
-    async def _append(self, row: list[str], a1: str) -> dict[str, str] | None:
+    @abstractmethod
+    async def init(self) -> None:
+        raise NotImplementedError
+
+    @abstractmethod
+    async def update(self, values: list[str]) -> None:
+        raise NotImplementedError
+
+    @abstractmethod
+    async def append(self, values: list[str]) -> None:
+        raise NotImplementedError
+
+    @abstractmethod
+    async def get_records(self, values: list[str] = 100):
+        raise NotImplementedError
+
+    async def _update(self, row: list[str], a1: str):
+        """Update a row or a specific cell"""
+        url = f"{self.base_url}/values/{a1}?{self.default_params}"
+        body = {"range": a1, "majorDimension": "ROWS", "values": [row]}
+        response = await self.session.put(url, json=body)
+        try:
+            response.raise_for_status()
+            data = response.json()
+            pprint(data)
+        except httpx.HTTPStatusError as err:
+            req_url = err.request.url
+            status = err.response.status_code
+            pprint(f"Error calling {req_url}, http status: {status}")
+
+    async def _append(self, values: list[str], a1: str) -> dict[str, str]:
         """Append row to sheet"""
-        params = "valueInputOption=USER_ENTERED"
-        url = f"{self.base_url}/values/{a1}:append?{params}"
-        body = {"majorDimension": "ROWS", "values": [row]}
+        url = f"{self.base_url}/values/{a1}:append?{self.default_params}"
+        body = {"majorDimension": "ROWS", "values": [values]}
         response = await self.session.post(url, json=body)
 
         try:
@@ -40,7 +75,7 @@ class AbstractDataManager(ABC, Generic[T]):
             req_url = err.request.url
             status = err.response.status_code
             pprint(f"Error calling {req_url}, http status: {status}")
-        return None
+        return {}
 
     async def _list(self, a1: str) -> list[list[str]] | None:
         """List data from a given range"""
@@ -63,12 +98,14 @@ class AbstractDataManager(ABC, Generic[T]):
         """A method to use Google Visualization API"""
         params = f"gid={sheet_index}&tq={query}&tqx=out:json"
         url = f"{self.gvi_url}?{params}"
+        print(url)
         response = await self.session.get(url)
         try:
             response.raise_for_status()
             to_replace = "/*O_o*/\ngoogle.visualization.Query.setResponse("
             clean_data = response.text.replace(to_replace, "")[:-2]
             json_data = json.loads(clean_data)
+            pprint(json_data, expand_all=True)
             rows = json_data.get("table", {}).get("rows", [])
             return rows
         except httpx.HTTPStatusError as err:
@@ -77,16 +114,7 @@ class AbstractDataManager(ABC, Generic[T]):
             pprint(f"Error calling {req_url}, http status: {status}")
         return None
 
-    @staticmethod
-    def get_auth_headers() -> dict:
-        """Get the authentication headers from Google credentials"""
-        headers: dict[str, str] = {}
-        credentials: Credentials | None = load_user_token()
-        if credentials:
-            credentials.apply(headers=headers)
-        return headers
-
-    async def sheet_exists(self, title: str) -> bool:
+    async def _get_sheet(self, title: str) -> bool:
         """Check if the sheet with the given title exists"""
         params = "fields=sheets.properties.title"
         url = f"{self.base_url}?{params}"
@@ -104,7 +132,7 @@ class AbstractDataManager(ABC, Generic[T]):
             pprint(f"Error calling {req_url}, http status: {status}")
         return False
 
-    async def get_sheet_index(self, title: str) -> int:
+    async def _get_index(self, title: str) -> int:
         """Get google sheet index position"""
         params = "fields=sheets"
         url = f"{self.base_url}?{params}"
@@ -123,7 +151,7 @@ class AbstractDataManager(ABC, Generic[T]):
             pprint(f"Error calling {req_url}, http status: {status}")
         return -1
 
-    async def create_sheet(self, title: str) -> dict[str, str] | None:
+    async def _create_sheet(self, title: str) -> dict[str, str] | None:
         """Create sheet with the given title"""
         url = f"{self.base_url}/:batchUpdate"
         body = {"requests": [{"addSheet": {"properties": {"title": title}}}]}
@@ -141,28 +169,36 @@ class AbstractDataManager(ABC, Generic[T]):
             pprint(f"Error calling {req_url}, http status: {status}")
         return None
 
-    @abstractmethod
-    async def init_sheet(self) -> None:
-        raise NotImplementedError
+    @staticmethod
+    def get_auth_headers() -> dict:
+        """Get the authentication headers from Google credentials"""
+        headers: dict[str, str] = {}
+        credentials: Credentials | None = load_user_token()
+        if credentials:
+            credentials.apply(headers=headers)
+        return headers
 
 
 class TransactionDataManager(AbstractDataManager):
     SHEET_NAME = "TRANSACTIONS"
     FIRST_COLUMN = "A"
     LAST_COLUMN = "E"
-    TRANSACTIONS_RANGE = f"{SHEET_NAME}!{FIRST_COLUMN}1:{LAST_COLUMN}"
+    ROW_START = 2
+    TRANSACTIONS_RANGE = f"{SHEET_NAME}!{FIRST_COLUMN}{ROW_START}:{LAST_COLUMN}"
+    HEADERS = ["DATE", "CATEGORY", "DESCRIPTION", "INCOME", "OUTCOME"]
 
-    async def init_sheet(self) -> None:
+    async def init(self) -> None:
         """Create TRANSACTIONS sheet if not exists"""
-        check: Coroutine = self.sheet_exists("TRANSACTIONS")
-        index: Coroutine = self.get_sheet_index("TRANSACTIONS")
+        check: Coroutine = self._get_sheet("TRANSACTIONS")
         try:
             exists = await asyncio.wait_for(check, timeout=5)
             if exists:
+                append: Coroutine = self._append(a1="ss", values=["ss"])
+                index: Coroutine = self._get_index("TRANSACTIONS")
                 index = await asyncio.wait_for(index, timeout=5)
                 update_config("transactions_sheet_index", str(index))
             else:
-                create: Coroutine = self.create_sheet("TRANSACTIONS")
+                create: Coroutine = self._create_sheet("TRANSACTIONS")
                 properties = await asyncio.wait_for(create, timeout=5)
                 if properties:
                     index = properties.get("index")
@@ -170,9 +206,20 @@ class TransactionDataManager(AbstractDataManager):
         except asyncio.TimeoutError:
             print("Timeout error")
 
-    async def get_transactions_for_month(
-        self, month: int
-    ) -> list[list[str]] | None:
+    async def update(self, values: list[str]) -> None:
+        pass
+
+    async def append(self, values: list) -> None:
+        """Add a transaction to the spreadsheet"""
+        await self._append(values=values, a1=self.TRANSACTIONS_RANGE)
+
+    async def get_records(self, rows: int = 100) -> list[list[str]]:
+        """List transactions. Default 100 rows"""
+        transaction_range = f"{self.TRANSACTIONS_RANGE}{rows}"
+        result: list[list[str]] = await self._list(a1=transaction_range)
+        return result if result else []
+
+    async def get_records_for_month(self, month: int) -> list[list[str]] | None:
         """Query the transactions for current month"""
         month -= 1  # month query starts from 0 to 11
         query = f"select A,B,C,D,E where month(A)={month}"
@@ -197,23 +244,6 @@ class TransactionDataManager(AbstractDataManager):
                 transactions.append(transaction)
         return transactions
 
-    async def add_transaction(self, row: list) -> None:
-        """Add a transaction to the spreadsheet"""
-        await self._append(row=row, a1=self.TRANSACTIONS_RANGE)
-
-    async def list_transactions(self, rows: int = 100) -> list[list[str]]:
-        """List transactions. Default 100 rows"""
-        transaction_range = f"{self.TRANSACTIONS_RANGE}{rows}"
-        result = await self._list(a1=transaction_range)
-        if result:
-            check_rows = all(isinstance(row, list) for row in result)
-            check_columns = all(
-                isinstance(col, str) for rows in result for col in rows
-            )
-            if isinstance(result, list) and check_rows and check_columns:
-                return result
-        return []
-
 
 class CategoryDataManager(AbstractDataManager):
     SHEET_NAME = "CATEGORIES"
@@ -221,17 +251,17 @@ class CategoryDataManager(AbstractDataManager):
     LAST_COLUMN = "A"
     CATEGORY_RANGE = f"{SHEET_NAME}!{FIRST_COLUMN}1:{LAST_COLUMN}"
 
-    async def init_sheet(self) -> None:
+    async def init(self) -> None:
         """Create CATEGORY sheet if not exists"""
-        check: Coroutine = self.sheet_exists(self.SHEET_NAME)
-        index: Coroutine = self.get_sheet_index(self.SHEET_NAME)
+        check: Coroutine = self._get_sheet(self.SHEET_NAME)
         try:
             exists = await asyncio.wait_for(check, timeout=5)
             if exists:
+                index: Coroutine = self._get_index(self.SHEET_NAME)
                 index = await asyncio.wait_for(index, timeout=5)
                 update_config("categories_sheet_index", str(index))
             else:
-                create: Coroutine = self.create_sheet(self.SHEET_NAME)
+                create: Coroutine = self._create_sheet(self.SHEET_NAME)
                 properties = await asyncio.wait_for(create, timeout=5)
                 if properties:
                     index = properties.get("index")
@@ -242,7 +272,18 @@ class CategoryDataManager(AbstractDataManager):
 
     async def add_category(self, row: list) -> None:
         """Add new category in Google sheet"""
-        await self._append(row=row, a1=self.CATEGORY_RANGE)
+        await self._append(values=row, a1=self.CATEGORY_RANGE)
+
+    async def get_category(self, name: str) -> None:
+        """Return a category by a given name"""
+        name = name.lower()
+        query = f"select A where A='demo'"
+        index = get_config("categories_sheet_index")
+        print("index is", index)
+        if index:
+            rows = await self._query(query, int(index))
+            pprint(rows, expand_all=True)
+            return rows
 
     async def list_categories(self, rows: int = 100) -> list[list[str]]:
         """List categories. Default first 100 rows"""

@@ -24,3 +24,7 @@ exclude = '''
                      # the root of the project
 )
 '''
+[tool.pytest.ini_options]
+addopts = "-vx"
+testpaths = ["tests"]
+markers = ["integration"]

@@ -30,7 +30,7 @@ class TestConfigCommand:
         Test config spreadsheet command without passing
         the spreadsheet id argument.
 
-        command: bugetcli config spreadsheet 'SPREADSHEET_ID'
+        command: budgetcli config spreadsheet 'SPREADSHEET_ID'
         """
         result = runner.invoke(config.app, ["spreadsheet-id"])
         assert result.exit_code == 2
