@@ -31,3 +31,10 @@ def get_transaction_table() -> Table:
     table.add_column("Income", justify="left", no_wrap=True, style="green")
     table.add_column("Outcome", justify="left", no_wrap=True, style="red")
     return table
+
+
+def get_category_table() -> Table:
+    """Return table to display categories"""
+    table = Table(header_style="blue", box=box.HORIZONTALS)
+    table.add_column("Name", justify="left", no_wrap=True)
+    return table

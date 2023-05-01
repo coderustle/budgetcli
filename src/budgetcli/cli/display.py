@@ -2,7 +2,7 @@ import calendar
 import typer
 
 from ..utils.config import get_config_list
-from ..commands import ListTransactionCommand
+from ..commands import ListTransactionCommand, ListCategoryCommand
 from ..utils import dates
 
 app = typer.Typer()
@@ -33,6 +33,13 @@ MonthOption = typer.Option(
     help="The name of the month eg: April or Apr",
     callback=validate_month,
 )
+
+
+@app.command()
+def categories(rows: int = RowsOption):
+    """List all categories from spreadsheet"""
+    command = ListCategoryCommand(rows=rows)
+    command.execute()
 
 
 @app.command()

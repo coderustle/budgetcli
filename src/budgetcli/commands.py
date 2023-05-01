@@ -6,7 +6,11 @@ from rich import print
 from .data_manager import ManagerFactory
 from .models import Transaction, Category
 from .settings import CURRENCY
-from .utils.display import get_transaction_table, task_progress
+from .utils.display import (
+    get_transaction_table,
+    task_progress,
+    get_category_table,
+)
 
 
 class Command(ABC):
@@ -91,3 +95,23 @@ class AddCategoryCommand(Command):
                 asyncio.run(self.manager.add_category(row))
         except AttributeError:
             print("Init factory manager error")
+
+
+class ListCategoryCommand(Command):
+    def __init__(self, rows: int):
+        self.rows = rows
+        self.manager = ManagerFactory.create_manager_for("categories")
+
+    def execute(self) -> None:
+        table = get_category_table()
+        try:
+            with task_progress(description="Processing"):
+                if self.rows:
+                    categories = asyncio.run(
+                        self.manager.list_categories(rows=self.rows)
+                    )
+                    for row in categories:
+                        table.add_row(row[0])
+        except AttributeError:
+            print("Init factory manager error")
+        print(table)

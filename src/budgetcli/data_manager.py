@@ -1,7 +1,7 @@
 import asyncio
 import json
 from abc import ABC, abstractmethod
-from typing import Any, Coroutine, Generic, TypeVar
+from typing import Coroutine, Generic, TypeVar
 
 import httpx
 from google.oauth2.credentials import Credentials
@@ -27,12 +27,10 @@ class AbstractDataManager(ABC, Generic[T]):
         self.session = httpx.AsyncClient()
         self.session.headers.update(self.get_auth_headers())
 
-    async def _append(
-        self, row: list[str], range: str
-    ) -> dict[str, str] | None:
+    async def _append(self, row: list[str], a1: str) -> dict[str, str] | None:
         """Append row to sheet"""
         params = "valueInputOption=USER_ENTERED"
-        url = f"{self.base_url}/values/{range}:append?{params}"
+        url = f"{self.base_url}/values/{a1}:append?{params}"
         body = {"majorDimension": "ROWS", "values": [row]}
         response = await self.session.post(url, json=body)
 
@@ -44,10 +42,10 @@ class AbstractDataManager(ABC, Generic[T]):
             pprint(f"Error calling {req_url}, http status: {status}")
         return None
 
-    async def _list(self, range: str) -> dict[str, str] | None:
+    async def _list(self, a1: str) -> list[list[str]] | None:
         """List data from a given range"""
         params = "?majorDimension=ROWS"
-        url = f"{self.base_url}/values/{range}{params}"
+        url = f"{self.base_url}/values/{a1}{params}"
         response = await self.session.get(url)
         try:
             response.raise_for_status()
@@ -62,7 +60,7 @@ class AbstractDataManager(ABC, Generic[T]):
     async def _query(
         self, query: str, sheet_index: int
     ) -> list[dict[str, list]] | None:
-        """A method to use Goolge Visualization API"""
+        """A method to use Google Visualization API"""
         params = f"gid={sheet_index}&tq={query}&tqx=out:json"
         url = f"{self.gvi_url}?{params}"
         response = await self.session.get(url)
@@ -81,7 +79,7 @@ class AbstractDataManager(ABC, Generic[T]):
 
     @staticmethod
     def get_auth_headers() -> dict:
-        """Get the authentication headers from google credentials"""
+        """Get the authentication headers from Google credentials"""
         headers: dict[str, str] = {}
         credentials: Credentials | None = load_user_token()
         if credentials:
@@ -180,7 +178,6 @@ class TransactionDataManager(AbstractDataManager):
         query = f"select A,B,C,D,E where month(A)={month}"
         transactions = []
         sheet_index = get_config("transactions_sheet_index")
-        rows = None
         if sheet_index:
             index = int(sheet_index)
             rows = await self._query(query, index)
@@ -202,12 +199,12 @@ class TransactionDataManager(AbstractDataManager):
 
     async def add_transaction(self, row: list) -> None:
         """Add a transaction to the spreadsheet"""
-        await self._append(row=row, range=self.TRANSACTIONS_RANGE)
+        await self._append(row=row, a1=self.TRANSACTIONS_RANGE)
 
     async def list_transactions(self, rows: int = 100) -> list[list[str]]:
         """List transactions. Default 100 rows"""
         transaction_range = f"{self.TRANSACTIONS_RANGE}{rows}"
-        result = await self._list(range=transaction_range)
+        result = await self._list(a1=transaction_range)
         if result:
             check_rows = all(isinstance(row, list) for row in result)
             check_columns = all(
@@ -225,7 +222,7 @@ class CategoryDataManager(AbstractDataManager):
     CATEGORY_RANGE = f"{SHEET_NAME}!{FIRST_COLUMN}1:{LAST_COLUMN}"
 
     async def init_sheet(self) -> None:
-        """Create CATEGORY shee if not exists"""
+        """Create CATEGORY sheet if not exists"""
         check: Coroutine = self.sheet_exists(self.SHEET_NAME)
         index: Coroutine = self.get_sheet_index(self.SHEET_NAME)
         try:
@@ -245,7 +242,13 @@ class CategoryDataManager(AbstractDataManager):
 
     async def add_category(self, row: list) -> None:
         """Add new category in Google sheet"""
-        await self._append(row=row, range=self.CATEGORY_RANGE)
+        await self._append(row=row, a1=self.CATEGORY_RANGE)
+
+    async def list_categories(self, rows: int = 100) -> list[list[str]]:
+        """List categories. Default first 100 rows"""
+        category_a1 = f"{self.CATEGORY_RANGE}{rows}"
+        result: list[list[str]] = await self._list(a1=category_a1)
+        return result if result else []
 
 
 class ManagerFactory:
