@@ -8,3 +8,4 @@ pytest-asyncio
 platformdirs
 black
 httpx
+ruff
