@@ -1,6 +1,5 @@
 import pytest
 import unittest
-
 from budgetcli.data_manager import ManagerFactory
 
 
