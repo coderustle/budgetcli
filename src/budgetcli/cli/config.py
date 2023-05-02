@@ -40,7 +40,9 @@ def credentials_file_path(
         shutil.copy(path, CREDENTIALS_SECRET_PATH)
         update_config("client_secret", CREDENTIALS_SECRET_PATH)
 
-        print(f":heavy_check_mark: File copied succesfuly to {USER_CONFIG_DIR}")
+        print(
+            f":heavy_check_mark: File copied succesfuly to {USER_CONFIG_DIR}"
+        )
     else:
         print(f':x: The provided file path to "{path}" is not correct')
 

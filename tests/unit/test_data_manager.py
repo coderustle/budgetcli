@@ -1,8 +1,6 @@
 import pytest
 import unittest
 
-from rich.pretty import pprint
-
 from budgetcli.data_manager import ManagerFactory
 
 

@@ -3,7 +3,7 @@ requires = ["setuptools", "wheel"]
 build-backend = "setuptools.build_meta"
 
 [tool.black]
-line-length = 80
+line-length = 79
 include = '\.pyi?$' 
 exclude = '''
 
@@ -24,7 +24,11 @@ exclude = '''
                      # the root of the project
 )
 '''
+[tool.ruff]
+line-length = 79
+
 [tool.pytest.ini_options]
 addopts = "-vx"
 testpaths = ["tests"]
 markers = ["integration"]
+

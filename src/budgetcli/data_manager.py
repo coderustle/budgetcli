@@ -184,7 +184,9 @@ class TransactionDataManager(AbstractDataManager):
     FIRST_COLUMN = "A"
     LAST_COLUMN = "E"
     ROW_START = 2
-    TRANSACTIONS_RANGE = f"{SHEET_NAME}!{FIRST_COLUMN}{ROW_START}:{LAST_COLUMN}"
+    TRANSACTIONS_RANGE = (
+        f"{SHEET_NAME}!{FIRST_COLUMN}{ROW_START}:{LAST_COLUMN}"
+    )
     HEADERS = ["DATE", "CATEGORY", "DESCRIPTION", "INCOME", "OUTCOME"]
 
     async def init(self) -> None:
@@ -193,7 +195,7 @@ class TransactionDataManager(AbstractDataManager):
         try:
             exists = await asyncio.wait_for(check, timeout=5)
             if exists:
-                append: Coroutine = self._append(a1="ss", values=["ss"])
+                self._append(a1="ss", values=["ss"])
                 index: Coroutine = self._get_index("TRANSACTIONS")
                 index = await asyncio.wait_for(index, timeout=5)
                 update_config("transactions_sheet_index", str(index))
@@ -219,7 +221,9 @@ class TransactionDataManager(AbstractDataManager):
         result: list[list[str]] = await self._list(a1=transaction_range)
         return result if result else []
 
-    async def get_records_for_month(self, month: int) -> list[list[str]] | None:
+    async def get_records_for_month(
+        self, month: int
+    ) -> list[list[str]] | None:
         """Query the transactions for current month"""
         month -= 1  # month query starts from 0 to 11
         query = f"select A,B,C,D,E where month(A)={month}"
@@ -277,7 +281,7 @@ class CategoryDataManager(AbstractDataManager):
     async def get_category(self, name: str) -> None:
         """Return a category by a given name"""
         name = name.lower()
-        query = f"select A where A='demo'"
+        query = f"select A where A='{name}'"
         index = get_config("categories_sheet_index")
         print("index is", index)
         if index:

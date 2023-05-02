@@ -1,11 +1,12 @@
-typer[all]
+typer[all]~=0.7.0
 google-auth-httplib2
 google-api-python-client
 google-auth-oauthlib
-pytest
+pytest~=7.2.2
 pytest-cov
 pytest-asyncio
-platformdirs
+platformdirs~=3.2.0
 black
-httpx
+httpx~=0.24.0
 ruff
+rich~=12.6.0
