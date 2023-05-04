@@ -13,6 +13,7 @@ def runner():
     return runner
 
 
+@pytest.mark.integration
 class TestConfigCommand:
     """Tests for config command"""
 
