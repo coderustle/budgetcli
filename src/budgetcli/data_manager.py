@@ -42,7 +42,7 @@ class AbstractDataManager(ABC, Generic[T]):
         raise NotImplementedError
 
     @abstractmethod
-    async def append(self, values: list[str]) -> None:
+    async def append(self, values: list[str]) -> dict[str, str]:
         raise NotImplementedError
 
     @abstractmethod
@@ -68,12 +68,15 @@ class AbstractDataManager(ABC, Generic[T]):
 
     async def _append(self, values: list[str], a1: str) -> dict[str, str]:
         """Append row to sheet"""
-        url = f"{self.base_url}/values/{a1}:append?{self.default_params}"
+        params = "valueInputOption=USER_ENTERED"
+        url = f"{self.base_url}/values/{a1}:append?{params}"
         body = {"majorDimension": "ROWS", "values": [values]}
         response = await self.session.post(url, json=body)
-
         try:
             response.raise_for_status()
+            data = response.json()
+            pprint(data, expand_all=True)
+            return data
         except httpx.HTTPStatusError as err:
             req_url = err.request.url
             status = err.response.status_code
@@ -196,9 +199,10 @@ class TransactionDataManager(AbstractDataManager):
         result = await self._update(values=values, a1=notation)
         return result
 
-    async def append(self, values: list) -> None:
+    async def append(self, values: list) -> dict[str, str]:
         """Add a transaction to the spreadsheet"""
-        await self._append(values=values, a1=self.TRANSACTIONS_RANGE)
+        result = await self._append(values=values, a1=self.TRANSACTIONS_RANGE)
+        return result
 
     async def get_records(self, rows: int = 100) -> list[list[str]]:
         """List transactions. Default 100 rows"""
