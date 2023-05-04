@@ -22,14 +22,14 @@ class Command(ABC):
 class InitCommand(Command):
     def __init__(self):
         self.tra_manager = ManagerFactory.create_manager_for("transactions")
-        self.cat_manager = ManagerFactory.create_manager_for("categories")
+        # self.cat_manager = ManagerFactory.create_manager_for("categories")
 
     async def init(self) -> None:
         try:
-            cat_task = asyncio.create_task(self.cat_manager.init_sheet())
-            tra_task = asyncio.create_task(self.tra_manager.init_sheet())
+            # cat_task = asyncio.create_task(self.cat_manager.init_sheet())
+            tra_task = asyncio.create_task(self.tra_manager.init())
             with task_progress(description="Processing.."):
-                await cat_task
+                # await cat_task
                 await tra_task
                 print(":heavy_check_mark: Init was completed successfully")
         except AttributeError:

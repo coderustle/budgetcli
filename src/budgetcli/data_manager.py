@@ -55,7 +55,6 @@ class AbstractDataManager(ABC, Generic[T]):
         url = f"{self.base_url}/values/{a1}?{params}"
         body = {"range": a1, "majorDimension": "ROWS", "values": [values]}
         response = await self.session.put(url, json=body)
-        pprint(response.json())
         try:
             response.raise_for_status()
             data = response.json()
@@ -178,6 +177,9 @@ class TransactionDataManager(AbstractDataManager):
 
     async def init(self) -> None:
         """Create TRANSACTIONS sheet if not exists"""
+        a1 = f"{self.SHEET_NAME}!A1"
+        headers = "DATE CATEGORY DESCRIPTION INCOME OUTCOME"
+        update_coroutine: Coroutine = self._update(headers.split(), a1)
         sheet_coroutine: Coroutine = self._get_sheet("TRANSACTIONS")
         try:
             sheet = await asyncio.wait_for(sheet_coroutine, timeout=5)
@@ -189,6 +191,7 @@ class TransactionDataManager(AbstractDataManager):
                 properties = await asyncio.wait_for(create, timeout=5)
                 index = properties["index"]
                 update_config("transactions_sheet_index", str(index))
+            await asyncio.wait_for(update_coroutine, timeout=5)
         except asyncio.TimeoutError:
             print("Timeout error")
         except KeyError:
