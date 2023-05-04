@@ -23,7 +23,7 @@ class AbstractDataManager(ABC, Generic[T]):
 
     PARAMS = [
         "valueInputOption=USER_ENTERED",
-        f"includeValuesInResponse={True}",
+        "includeValuesInResponse=true",
     ]
 
     def __init__(self):
@@ -31,14 +31,14 @@ class AbstractDataManager(ABC, Generic[T]):
         self.gvi_url = f"{GVI_URL}/{SPREADSHEET_ID}/gviz/tq"
         self.session = httpx.AsyncClient()
         self.session.headers.update(self.get_auth_headers())
-        self.default_params = ["?".join(param) for param in self.PARAMS]
+        self.default_params = "?".join(self.PARAMS)
 
     @abstractmethod
     async def init(self) -> None:
         raise NotImplementedError
 
     @abstractmethod
-    async def update(self, values: list[str]) -> None:
+    async def update(self, values: list[str], a1: str) -> dict[str, str]:
         raise NotImplementedError
 
     @abstractmethod
@@ -49,19 +49,22 @@ class AbstractDataManager(ABC, Generic[T]):
     async def get_records(self, values: list[str] = 100):
         raise NotImplementedError
 
-    async def _update(self, row: list[str], a1: str):
+    async def _update(self, values: list[str], a1: str) -> dict[str, str]:
         """Update a row or a specific cell"""
-        url = f"{self.base_url}/values/{a1}?{self.default_params}"
-        body = {"range": a1, "majorDimension": "ROWS", "values": [row]}
+        params = "valueInputOption=USER_ENTERED"
+        url = f"{self.base_url}/values/{a1}?{params}"
+        body = {"range": a1, "majorDimension": "ROWS", "values": [values]}
         response = await self.session.put(url, json=body)
+        pprint(response.json())
         try:
             response.raise_for_status()
             data = response.json()
-            pprint(data)
+            return data
         except httpx.HTTPStatusError as err:
             req_url = err.request.url
             status = err.response.status_code
             pprint(f"Error calling {req_url}, http status: {status}")
+        return {}
 
     async def _append(self, values: list[str], a1: str) -> dict[str, str]:
         """Append row to sheet"""
@@ -133,7 +136,7 @@ class AbstractDataManager(ABC, Generic[T]):
         return None
 
     async def _create_sheet(self, title: str) -> dict[str, str] | None:
-        """Create sheet with the given title and returns the sheet properties"""
+        """Create sheet with the given title and returns its properties"""
         url = f"{self.base_url}/:batchUpdate"
         body = {"requests": [{"addSheet": {"properties": {"title": title}}}]}
         response = await self.session.post(url, json=body)
@@ -188,8 +191,10 @@ class TransactionDataManager(AbstractDataManager):
         except KeyError:
             print("Key error for index")
 
-    async def update(self, values: list[str]) -> None:
-        pass
+    async def update(self, values: list[str], a1: str) -> dict[str, str]:
+        notation = f"{self.SHEET_NAME}!{a1}"
+        result = await self._update(values=values, a1=notation)
+        return result
 
     async def append(self, values: list) -> None:
         """Add a transaction to the spreadsheet"""
