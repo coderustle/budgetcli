@@ -28,7 +28,7 @@ exclude = '''
 line-length = 79
 
 [tool.pytest.ini_options]
-addopts = "-vx"
+addopts = "-vx -m 'not slow'"
 testpaths = ["tests"]
-markers = ["integration"]
+markers = ["slow"]
 

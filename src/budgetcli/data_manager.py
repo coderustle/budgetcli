@@ -114,9 +114,9 @@ class AbstractDataManager(ABC, Generic[T]):
             pprint(f"Error calling {req_url}, http status: {status}")
         return None
 
-    async def _get_sheet(self, title: str) -> bool:
+    async def _get_sheet(self, title: str) -> dict[str, str] | None:
         """Check if the sheet with the given title exists"""
-        params = "fields=sheets.properties.title"
+        params = "fields=sheets.properties"
         url = f"{self.base_url}?{params}"
         response = await self.session.get(url)
         try:
@@ -125,34 +125,15 @@ class AbstractDataManager(ABC, Generic[T]):
             sheets = data.get("sheets")
             for sheet in sheets:
                 if sheet["properties"]["title"] == title:
-                    return True
+                    return sheet["properties"]
         except httpx.HTTPStatusError as err:
             req_url = err.request.url
             status = err.response.status_code
             pprint(f"Error calling {req_url}, http status: {status}")
-        return False
-
-    async def _get_index(self, title: str) -> int:
-        """Get google sheet index position"""
-        params = "fields=sheets"
-        url = f"{self.base_url}?{params}"
-        response = await self.session.get(url)
-        try:
-            response.raise_for_status()
-            data = response.json()
-            sheets = data.get("sheets")
-            for sheet in sheets:
-                if sheet["properties"]["title"] == title:
-                    sheet_index = sheet["properties"]["index"]
-                    return sheet_index
-        except httpx.HTTPStatusError as err:
-            req_url = err.request.url
-            status = err.response.status_code
-            pprint(f"Error calling {req_url}, http status: {status}")
-        return -1
+        return None
 
     async def _create_sheet(self, title: str) -> dict[str, str] | None:
-        """Create sheet with the given title"""
+        """Create sheet with the given title and returns the sheet properties"""
         url = f"{self.base_url}/:batchUpdate"
         body = {"requests": [{"addSheet": {"properties": {"title": title}}}]}
         response = await self.session.post(url, json=body)
@@ -191,22 +172,21 @@ class TransactionDataManager(AbstractDataManager):
 
     async def init(self) -> None:
         """Create TRANSACTIONS sheet if not exists"""
-        check: Coroutine = self._get_sheet("TRANSACTIONS")
+        sheet_coroutine: Coroutine = self._get_sheet("TRANSACTIONS")
         try:
-            exists = await asyncio.wait_for(check, timeout=5)
-            if exists:
-                self._append(a1="ss", values=["ss"])
-                index: Coroutine = self._get_index("TRANSACTIONS")
-                index = await asyncio.wait_for(index, timeout=5)
+            sheet = await asyncio.wait_for(sheet_coroutine, timeout=5)
+            if sheet:
+                index = sheet["index"]
                 update_config("transactions_sheet_index", str(index))
             else:
                 create: Coroutine = self._create_sheet("TRANSACTIONS")
                 properties = await asyncio.wait_for(create, timeout=5)
-                if properties:
-                    index = properties.get("index")
-                    update_config("transactions_sheet_index", str(index))
+                index = properties["index"]
+                update_config("transactions_sheet_index", str(index))
         except asyncio.TimeoutError:
             print("Timeout error")
+        except KeyError:
+            print("Key error for index")
 
     async def update(self, values: list[str]) -> None:
         pass
