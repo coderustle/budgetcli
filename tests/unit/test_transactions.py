@@ -1,6 +1,7 @@
 from unittest.mock import patch, MagicMock
 
 import pytest
+
 from budgetcli.data_manager import ManagerFactory, AbstractDataManager
 
 
@@ -29,6 +30,14 @@ def fake_sheet_coro():
         }
 
     return mock_coro
+
+
+@pytest.fixture
+def transactions():
+    return [
+        ["05-05-2023", "salary", "", "200", "0"],
+        ["06-05-2023", "rent", "", "0", "100"],
+    ]
 
 
 @pytest.mark.asyncio
@@ -127,3 +136,36 @@ async def test_append_method_with_no_values(manager):
         result = await manager.append(values=values.split())
         append_mock.assert_called_once()
         assert not result
+
+
+@pytest.mark.asyncio
+async def test_get_records(manager, transactions):
+    """Test get transactions method"""
+    with patch.object(AbstractDataManager, "_list") as mock_list:
+        mock_list.return_value = transactions
+        result = await manager.get_records()
+        assert result
+        assert len(result) == 2
+
+
+@pytest.mark.asyncio
+async def test_get_records_rows_option(manager, transactions):
+    """Test get transactions with rows option"""
+    expected = [["2023-04-05", "category", " ", "20", "0"]]
+    with patch.object(AbstractDataManager, "_list") as mock_list:
+        mock_list.return_value = expected
+        result = await manager.get_records(rows=1)
+        assert len(result) == 1
+
+
+@pytest.mark.asyncio
+async def test_get_records_for_month(manager, transactions):
+    """Test get transactions for month"""
+    expected = [
+        ["05-05-2023", "salary", "", 200.0, 0.0],
+        ["05-05-2023", "rent", "", 0.0, 50.0],
+    ]
+    with patch.object(AbstractDataManager, "_list") as mock_list:
+        mock_list.return_value = expected
+        result = await manager.get_records_for_month(month=5)
+        assert result

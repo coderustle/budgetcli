@@ -102,14 +102,12 @@ class AbstractDataManager(ABC, Generic[T]):
         """A method to use Google Visualization API"""
         params = f"gid={sheet_index}&tq={query}&tqx=out:json"
         url = f"{self.gvi_url}?{params}"
-        print(url)
         response = await self.session.get(url)
         try:
             response.raise_for_status()
             to_replace = "/*O_o*/\ngoogle.visualization.Query.setResponse("
             clean_data = response.text.replace(to_replace, "")[:-2]
             json_data = json.loads(clean_data)
-            pprint(json_data, expand_all=True)
             rows = json_data.get("table", {}).get("rows", [])
             return rows
         except httpx.HTTPStatusError as err:
@@ -217,36 +215,34 @@ class TransactionDataManager(AbstractDataManager):
 
     async def get_records(self, rows: int = 100) -> list[list[str]]:
         """List transactions. Default 100 rows"""
-        transaction_range = f"{self.TRANSACTIONS_RANGE}{rows}"
+        transaction_range = f"{self.TRANSACTIONS_RANGE}{rows + 1}"
         result: list[list[str]] = await self._list(a1=transaction_range)
         return result if result else []
 
-    async def get_records_for_month(
-        self, month: int
-    ) -> list[list[str]] | None:
+    async def get_records_for_month(self, month: int) -> list[list[str]]:
         """Query the transactions for current month"""
         month -= 1  # month query starts from 0 to 11
         query = f"select A,B,C,D,E where month(A)={month}"
-        transactions = []
+
         sheet_index = get_config("transactions_sheet_index")
-        if sheet_index:
-            index = int(sheet_index)
-            rows = await self._query(query, index)
-        else:
-            rows = await self._query(query, 0)
-        if rows:
-            for row in rows:
-                transaction = []
-                for cel in row.get("c", []):
-                    if cel and "Date(" in str(cel.get("v")):
-                        date = cel.get("f")
-                        transaction.append(date)
-                    elif cel:
-                        transaction.append(cel.get("v"))
-                    else:
-                        transaction.append("")
-                transactions.append(transaction)
+        index = int(sheet_index) if sheet_index else 1
+        rows = await self._query(query, index)
+        transactions = [self._process_row(row) for row in rows] if rows else []
         return transactions
+
+    @staticmethod
+    def _process_row(row: dict[str, list]) -> list[str]:
+        """Helper function to process transaction rows"""
+        transaction = []
+        for cel in row.get("c", []):
+            if cel and "Date(" in str(cel.get("v")):
+                date = cel.get("f")
+                transaction.append(date)
+            elif cel:
+                transaction.append(cel.get("v"))
+            else:
+                transaction.append("")
+        return transaction
 
 
 class CategoryDataManager(AbstractDataManager):
