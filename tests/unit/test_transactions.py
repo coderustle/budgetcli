@@ -1,4 +1,4 @@
-from unittest.mock import patch
+from unittest.mock import patch, MagicMock
 
 import pytest
 from budgetcli.data_manager import ManagerFactory, AbstractDataManager
@@ -9,14 +9,63 @@ def manager():
     return ManagerFactory.create_manager_for("transactions")
 
 
-@pytest.mark.slow
+@pytest.fixture
+def fake_coro():
+    async def coro():
+        return None
+
+    return coro
+
+
+@pytest.fixture
+def fake_sheet_coro():
+    async def mock_coro():
+        return {
+            "sheetId": 345247012,
+            "title": "TRANSACTIONS",
+            "index": 1,
+            "sheetType": "GRID",
+            "gridProperties": {"rowCount": 1000, "columnCount": 26},
+        }
+
+    return mock_coro
+
+
 @pytest.mark.asyncio
-async def test_init_sheet(manager, capsys):
-    """Test init sheet method"""
-    await manager.init()
-    output = capsys.readouterr()
-    text = "✔ transactions_sheet_index was updated"
-    assert text in output.out
+async def test_init_sheet_exists(manager, fake_sheet_coro, fake_coro):
+    """Test init sheet get sheet"""
+    manager._update = MagicMock()
+    manager._update.return_value = fake_coro()
+
+    manager._get_sheet = MagicMock()
+    manager._get_sheet.return_value = fake_sheet_coro()
+
+    with patch("budgetcli.data_manager.update_config") as mock_config:
+        await manager.init()
+        manager._get_sheet.assert_called_once()
+        mock_config.assert_called_once()
+        manager._update.assert_called_once()
+
+
+@pytest.mark.asyncio
+async def test_init_sheet_create(manager, fake_sheet_coro, fake_coro):
+    """Test init sheet create"""
+
+    manager._update = MagicMock()
+    manager._update.return_value = fake_coro()
+
+    manager._get_sheet = MagicMock()
+    manager._get_sheet.return_value = fake_coro()
+
+    manager._create_sheet = MagicMock()
+    manager._create_sheet.return_value = fake_sheet_coro()
+
+    with patch("budgetcli.data_manager.update_config") as mock_config:
+        await manager.init()
+        manager._get_sheet.assert_called_once()
+        manager._create_sheet.assert_called_once()
+        mock_config.assert_called_once()
+        manager._update.assert_called_once()
 
 
 @pytest.mark.asyncio

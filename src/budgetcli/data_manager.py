@@ -155,6 +155,22 @@ class AbstractDataManager(ABC, Generic[T]):
             pprint(f"Error calling {req_url}, http status: {status}")
         return None
 
+    async def _get_sheet_or_create(self, sheet_name: str) -> dict[str, str]:
+        """Get sheet or create if not exists"""
+        sheet: Coroutine = self._get_sheet(sheet_name)
+        try:
+            properties = await asyncio.wait_for(sheet, timeout=5)
+            if properties:
+                return properties
+            else:
+                create: Coroutine = self._create_sheet(sheet_name)
+                properties = await asyncio.wait_for(create, timeout=5)
+                if properties:
+                    return properties
+        except asyncio.TimeoutError:
+            pass
+        return {}
+
     @staticmethod
     def get_auth_headers() -> dict:
         """Get the authentication headers from Google credentials"""
@@ -179,23 +195,16 @@ class TransactionDataManager(AbstractDataManager):
         """Create TRANSACTIONS sheet if not exists"""
         a1 = f"{self.SHEET_NAME}!A1"
         headers = "DATE CATEGORY DESCRIPTION INCOME OUTCOME"
+        sheet_coroutine: Coroutine = self._get_sheet_or_create(self.SHEET_NAME)
         update_coroutine: Coroutine = self._update(headers.split(), a1)
-        sheet_coroutine: Coroutine = self._get_sheet("TRANSACTIONS")
         try:
             sheet = await asyncio.wait_for(sheet_coroutine, timeout=5)
             if sheet:
                 index = sheet["index"]
                 update_config("transactions_sheet_index", str(index))
-            else:
-                create: Coroutine = self._create_sheet("TRANSACTIONS")
-                properties = await asyncio.wait_for(create, timeout=5)
-                index = properties["index"]
-                update_config("transactions_sheet_index", str(index))
             await asyncio.wait_for(update_coroutine, timeout=5)
         except asyncio.TimeoutError:
             print("Timeout error")
-        except KeyError:
-            print("Key error for index")
 
     async def update(self, values: list[str], a1: str) -> dict[str, str]:
         notation = f"{self.SHEET_NAME}!{a1}"

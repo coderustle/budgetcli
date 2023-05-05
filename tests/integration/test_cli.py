@@ -3,6 +3,8 @@ from budgetcli.cli import config
 from budgetcli.utils.config import get_config
 from typer.testing import CliRunner
 
+pytestmark = pytest.mark.integration
+
 
 @pytest.fixture(scope="session", autouse=True)
 def runner():
@@ -13,7 +15,6 @@ def runner():
     return runner
 
 
-@pytest.mark.integration
 class TestConfigCommand:
     """Tests for config command"""
 
