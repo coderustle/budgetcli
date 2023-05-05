@@ -86,10 +86,10 @@ budgetcli list transactions
 **List only first 10 transactions**
 
 ```bash
-budgetcli list transactions --rows=10 
+budgetcli list transactions --rows 10 
 ```
 
 **List transactions for a specific month**
 ```bash
-budgetcli list transactions --month=April 
+budgetcli list transactions --month April 
 ```
