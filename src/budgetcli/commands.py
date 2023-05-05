@@ -48,7 +48,7 @@ class AddTransactionCommand(Command):
         try:
             with task_progress(description="Processing.."):
                 row = self.transaction.to_sheet_row()
-                asyncio.run(self.manager.add_transaction(row))
+                asyncio.run(self.manager.append(row))
                 print(":heavy_check_mark: Transaction was added successfully")
             pass
         except AttributeError:
@@ -70,11 +70,11 @@ class ListTransactionCommand(Command):
                 transactions = []
                 if self.month:
                     transactions = asyncio.run(
-                        self.manager.get_transactions_for_month(self.month)
+                        self.manager.get_records_for_month(self.month)
                     )
                 else:
                     transactions = asyncio.run(
-                        self.manager.list_transactions(self.rows)
+                        self.manager.get_records(self.rows)
                     )
                 for row in transactions:
                     income = f"{CURRENCY} {row[3]}"
