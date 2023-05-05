@@ -22,14 +22,14 @@ class Command(ABC):
 class InitCommand(Command):
     def __init__(self):
         self.tra_manager = ManagerFactory.create_manager_for("transactions")
-        # self.cat_manager = ManagerFactory.create_manager_for("categories")
+        self.cat_manager = ManagerFactory.create_manager_for("categories")
 
     async def init(self) -> None:
         try:
-            # cat_task = asyncio.create_task(self.cat_manager.init_sheet())
+            cat_task = asyncio.create_task(self.cat_manager.init())
             tra_task = asyncio.create_task(self.tra_manager.init())
             with task_progress(description="Processing.."):
-                # await cat_task
+                await cat_task
                 await tra_task
                 print(":heavy_check_mark: Init was completed successfully")
         except AttributeError:
@@ -67,7 +67,6 @@ class ListTransactionCommand(Command):
         table = get_transaction_table()
         if self.manager is not None:
             with task_progress(description="Processing.."):
-                transactions = []
                 if self.month:
                     transactions = asyncio.run(
                         self.manager.get_records_for_month(self.month)
@@ -92,7 +91,8 @@ class AddCategoryCommand(Command):
         try:
             with task_progress(description="Processing.."):
                 row = self.category.to_sheet_row()
-                asyncio.run(self.manager.add_category(row))
+                asyncio.run(self.manager.append(row))
+                print(":heavy_check_mark: Category was added successfully")
         except AttributeError:
             print("Init factory manager error")
 
@@ -108,7 +108,7 @@ class ListCategoryCommand(Command):
             with task_progress(description="Processing"):
                 if self.rows:
                     categories = asyncio.run(
-                        self.manager.list_categories(rows=self.rows)
+                        self.manager.get_records(rows=self.rows)
                     )
                     for row in categories:
                         table.add_row(row[0])

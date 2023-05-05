@@ -46,7 +46,7 @@ class AbstractDataManager(ABC, Generic[T]):
         raise NotImplementedError
 
     @abstractmethod
-    async def get_records(self, values: list[str] = 100):
+    async def get_records(self, rows: int = 100):
         raise NotImplementedError
 
     async def _update(self, values: list[str], a1: str) -> dict[str, str]:
@@ -249,32 +249,41 @@ class CategoryDataManager(AbstractDataManager):
     SHEET_NAME = "CATEGORIES"
     FIRST_COLUMN = "A"
     LAST_COLUMN = "A"
-    CATEGORY_RANGE = f"{SHEET_NAME}!{FIRST_COLUMN}1:{LAST_COLUMN}"
+    ROW_START = 2
+    CATEGORY_RANGE = f"{SHEET_NAME}!{FIRST_COLUMN}{ROW_START}:{LAST_COLUMN}"
 
     async def init(self) -> None:
         """Create CATEGORY sheet if not exists"""
-        check: Coroutine = self._get_sheet(self.SHEET_NAME)
+        a1 = f"{self.SHEET_NAME}!A1"
+        headers = "CATEGORY"
+        sheet_coroutine: Coroutine = self._get_sheet_or_create(self.SHEET_NAME)
+        update_coroutine: Coroutine = self._update([headers], a1)
         try:
-            exists = await asyncio.wait_for(check, timeout=5)
-            if exists:
-                index: Coroutine = self._get_index(self.SHEET_NAME)
-                index = await asyncio.wait_for(index, timeout=5)
+            sheet = await asyncio.wait_for(sheet_coroutine, timeout=5)
+            if sheet:
+                index = sheet["index"]
                 update_config("categories_sheet_index", str(index))
-            else:
-                create: Coroutine = self._create_sheet(self.SHEET_NAME)
-                properties = await asyncio.wait_for(create, timeout=5)
-                if properties:
-                    index = properties.get("index")
-                    update_config("categories_sheet_index", str(index))
+            await asyncio.wait_for(update_coroutine, timeout=5)
         except asyncio.TimeoutError:
             print("Timeout error")
-        return None
 
-    async def add_category(self, row: list) -> None:
+    async def update(self, values: list[str], a1: str) -> dict[str, str]:
+        notation = f"{self.SHEET_NAME}!{a1}"
+        result = await self._update(values=values, a1=notation)
+        return result
+
+    async def append(self, values: list) -> dict[str, str]:
         """Add new category in Google sheet"""
-        await self._append(values=row, a1=self.CATEGORY_RANGE)
+        result = await self._append(values=values, a1=self.CATEGORY_RANGE)
+        return result
 
-    async def get_category(self, name: str) -> None:
+    async def get_records(self, rows: int = 100):
+        """Return all categories"""
+        category_range = f"{self.CATEGORY_RANGE}{rows + 1}"
+        result: list[list[str]] = await self._list(a1=category_range)
+        return result if result else []
+
+    async def get_records_by_name(self, name: str) -> None:
         """Return a category by a given name"""
         name = name.lower()
         query = f"select A where A='{name}'"
@@ -284,12 +293,6 @@ class CategoryDataManager(AbstractDataManager):
             rows = await self._query(query, int(index))
             pprint(rows, expand_all=True)
             return rows
-
-    async def list_categories(self, rows: int = 100) -> list[list[str]]:
-        """List categories. Default first 100 rows"""
-        category_a1 = f"{self.CATEGORY_RANGE}{rows}"
-        result: list[list[str]] = await self._list(a1=category_a1)
-        return result if result else []
 
 
 class ManagerFactory:
