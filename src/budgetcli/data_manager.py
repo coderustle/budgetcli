@@ -74,7 +74,6 @@ class AbstractDataManager(ABC, Generic[T]):
         try:
             response.raise_for_status()
             data = response.json()
-            pprint(data, expand_all=True)
             return data
         except httpx.HTTPStatusError as err:
             req_url = err.request.url
