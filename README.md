@@ -50,26 +50,46 @@ The commands follow the below structure.
 ```
 budgetcli <VERB> <OBJECT> <OPTIONS>
 ```
+### Incomes
+To add an income you need to provide only an amount and a category. By default, all the income transactions are added
+with default today date and without no description.
 
 **Add an income**
+```bash
+budgetcli add income 5000 Salary
 ```
-budgetcli add income 2023-03-20 salary "short description" 4000
+**Add an income with description**
+```bash
+budgetcli add income 500 projects --description "Project A"
 ```
+**Add an income with date and description**
+```bash
+budgetcli add income 500 projects --description "Project A" --date 2023-04-01
+```
+
+### Outcomes
+Same for outcome transactions, you need to provide only an amount and a category. By default, all the outcome transactions are added
+with default today date and without no description.
+
 **Add an outcome**
+```bash
+budgetcli add outcome 400 Rent
 ```
-budgetcli add outcome 2023-03-20 rent "short description" 400
+```bash
+budgetcli add outcome 400 Rent --date 2023-05-01 --description "Rent for April"
 ```
+### List transactions
 **List transactions. Default first 100 rows**
 ```
 budgetcli list transactions 
 ```
 **List only first 10 transactions**
 
-```
+```bash
 budgetcli list transactions --rows=10 
 ```
 
 **List transactions for a specific month**
-```
+```bash
 budgetcli list transactions --month=April 
 ```
