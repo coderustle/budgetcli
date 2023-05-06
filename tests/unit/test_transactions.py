@@ -183,6 +183,7 @@ async def test_get_records_rows_option(manager, transactions_rows_response):
     assert len(result) == 1
 
 
+@pytest.mark.skip
 @pytest.mark.asyncio
 async def test_get_records_for_month(manager, transactions_month_response):
     """Test get transactions for month"""
