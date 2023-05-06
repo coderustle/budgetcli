@@ -6,8 +6,10 @@ A simple terminal app written in Python to manage budgets and expenses in Google
 
 ## Features
 
-- Ability to track incomes and expenses as transactions
-- Ability to list transactions by month
+- Add income transactions 
+- Add outcome transactions 
+- List transactions by month
+- Add spending categories
 
 ## Installation
 
