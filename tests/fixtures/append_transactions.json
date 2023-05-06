@@ -1,0 +1,11 @@
+{
+  "spreadsheetId": "Ckwbcjyo0WjEgmF8kFsWl7etoc",
+  "tableRange": "TRANSACTIONS!A2:E4",
+  "updates": {
+    "spreadsheetId": "Ckwbcjyo0WjEgmF8kFsWl7etoc",
+    "updatedRange": "TRANSACTIONS!A5:E5",
+    "updatedRows": 1,
+    "updatedColumns": 5,
+    "updatedCells": 5
+  }
+}

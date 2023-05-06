@@ -19,8 +19,32 @@ def transactions_init_get_sheet():
 
 
 @pytest.fixture
+def transactions_init_create_sheet():
+    file_path = FIXTURES_FOLDER / "create_transactions_sheet.json"
+
+    def json_response():
+        with file_path.open("rb") as f:
+            response = json.load(f)
+            return response
+
+    return json_response
+
+
+@pytest.fixture
 def transactions_update_response():
     file_path = FIXTURES_FOLDER / "update_transactions.json"
+
+    def json_response():
+        with file_path.open("rb") as f:
+            response = json.load(f)
+            return response
+
+    return json_response
+
+
+@pytest.fixture
+def transactions_append_response():
+    file_path = FIXTURES_FOLDER / "append_transactions.json"
 
     def json_response():
         with file_path.open("rb") as f:

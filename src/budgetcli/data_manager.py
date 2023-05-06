@@ -125,9 +125,10 @@ class AbstractDataManager(ABC, Generic[T]):
             response.raise_for_status()
             data = response.json()
             sheets = data.get("sheets")
-            for sheet in sheets:
-                if sheet["properties"]["title"] == title:
-                    return sheet["properties"]
+            if sheets:
+                for sheet in sheets:
+                    if sheet["properties"]["title"] == title:
+                        return sheet["properties"]
         except httpx.HTTPStatusError as err:
             req_url = err.request.url
             status = err.response.status_code

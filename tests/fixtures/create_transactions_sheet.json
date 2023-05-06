@@ -1,0 +1,19 @@
+{
+  "spreadsheetId": "JLZD_Ckwbcjyo0WjEgmF8kFsWl7etoc",
+  "replies": [
+    {
+      "addSheet": {
+        "properties": {
+          "sheetId": 1512310314,
+          "title": "TRANSACTIONS",
+          "index": 1,
+          "sheetType": "GRID",
+          "gridProperties": {
+            "rowCount": 1000,
+            "columnCount": 26
+          }
+        }
+      }
+    }
+  ]
+}
