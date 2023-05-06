@@ -28,6 +28,7 @@ RowsOption = typer.Option(
     max=100,
     help="Number of transaction rows to display",
 )
+NameOption = typer.Option("", help="The name of category")
 MonthOption = typer.Option(
     "",
     help="The name of the month eg: April or Apr",
@@ -36,9 +37,9 @@ MonthOption = typer.Option(
 
 
 @app.command()
-def categories(rows: int = RowsOption):
+def categories(rows: int = RowsOption, name: str = NameOption):
     """List all categories from spreadsheet"""
-    command = ListCategoryCommand(rows=rows)
+    command = ListCategoryCommand(rows=rows, name=name)
     command.execute()
 
 

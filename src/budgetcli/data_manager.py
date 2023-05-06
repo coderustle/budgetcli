@@ -170,6 +170,20 @@ class AbstractDataManager(ABC, Generic[T]):
         return {}
 
     @staticmethod
+    def _process_row(row: dict[str, list]) -> list[str]:
+        """Helper function to process transaction rows"""
+        records = []
+        for cel in row.get("c", []):
+            if cel and "Date(" in str(cel.get("v")):
+                date = cel.get("f")
+                records.append(date)
+            elif cel:
+                records.append(cel.get("v"))
+            else:
+                records.append("")
+        return records
+
+    @staticmethod
     def get_auth_headers() -> dict:
         """Get the authentication headers from Google credentials"""
         headers: dict[str, str] = {}
@@ -224,25 +238,14 @@ class TransactionDataManager(AbstractDataManager):
         """Query the transactions for current month"""
         month -= 1  # month query starts from 0 to 11
         query = f"select A,B,C,D,E where month(A)={month}"
-        sheet_index = get_config("transactions_sheet_index")
-        index = int(sheet_index) if sheet_index else 1
-        rows = await self._query(query, index)
-        transactions = [self._process_row(row) for row in rows] if rows else []
-        return transactions
-
-    @staticmethod
-    def _process_row(row: dict[str, list]) -> list[str]:
-        """Helper function to process transaction rows"""
-        transaction = []
-        for cel in row.get("c", []):
-            if cel and "Date(" in str(cel.get("v")):
-                date = cel.get("f")
-                transaction.append(date)
-            elif cel:
-                transaction.append(cel.get("v"))
-            else:
-                transaction.append("")
-        return transaction
+        index = get_config("transactions_sheet_index")
+        if index:
+            rows = await self._query(query, int(index))
+            transactions = [self._process_row(i) for i in rows] if rows else []
+            return transactions
+        else:
+            pprint(":warning: Transactions sheet index is missing")
+        return []
 
 
 class CategoryDataManager(AbstractDataManager):
@@ -283,14 +286,18 @@ class CategoryDataManager(AbstractDataManager):
         result: list[list[str]] = await self._list(a1=category_range)
         return result if result else []
 
-    async def get_records_by_name(self, name: str) -> None:
+    async def get_records_by_name(self, name: str) -> list[list[str]]:
         """Return a category by a given name"""
         name = name.lower()
         query = f"select A where A='{name}'"
         index = get_config("categories_sheet_index")
         if index:
             rows = await self._query(query, int(index))
-            return rows
+            categories = [self._process_row(i) for i in rows] if rows else []
+            return categories
+        else:
+            pprint(":warning: Categories sheet index is missing")
+        return []
 
 
 class ManagerFactory:

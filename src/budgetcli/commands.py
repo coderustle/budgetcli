@@ -68,13 +68,11 @@ class ListTransactionCommand(Command):
         if self.manager is not None:
             with task_progress(description="Processing.."):
                 if self.month:
-                    transactions = asyncio.run(
-                        self.manager.get_records_for_month(self.month)
-                    )
+                    get = self.manager.get_records_for_month(self.month)
+                    transactions = asyncio.run(get)
                 else:
-                    transactions = asyncio.run(
-                        self.manager.get_records(self.rows)
-                    )
+                    get = self.manager.get_records(self.rows)
+                    transactions = asyncio.run(get)
                 for row in transactions:
                     income = f"{CURRENCY} {row[3]}"
                     outcome = f"{CURRENCY} {row[4]}"
@@ -98,20 +96,23 @@ class AddCategoryCommand(Command):
 
 
 class ListCategoryCommand(Command):
-    def __init__(self, rows: int):
+    def __init__(self, rows: int, name: str):
         self.rows = rows
+        self.name = name
         self.manager = ManagerFactory.create_manager_for("categories")
 
     def execute(self) -> None:
         table = get_category_table()
         try:
             with task_progress(description="Processing"):
-                if self.rows:
-                    categories = asyncio.run(
-                        self.manager.get_records(rows=self.rows)
-                    )
-                    for row in categories:
-                        table.add_row(row[0])
+                if self.name:
+                    get = self.manager.get_records_by_name(name=self.name)
+                    categories = asyncio.run(get)
+                else:
+                    get = self.manager.get_records(rows=self.rows)
+                    categories = asyncio.run(get)
+                for row in categories:
+                    table.add_row(row[0])
         except AttributeError:
             print("Init factory manager error")
         print(table)
