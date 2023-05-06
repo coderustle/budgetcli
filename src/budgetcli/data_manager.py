@@ -288,10 +288,8 @@ class CategoryDataManager(AbstractDataManager):
         name = name.lower()
         query = f"select A where A='{name}'"
         index = get_config("categories_sheet_index")
-        print("index is", index)
         if index:
             rows = await self._query(query, int(index))
-            pprint(rows, expand_all=True)
             return rows
 
 

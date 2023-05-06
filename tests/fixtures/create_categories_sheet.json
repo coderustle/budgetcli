@@ -4,9 +4,9 @@
     {
       "addSheet": {
         "properties": {
-          "sheetId": 1512310314,
+          "sheetId": 1512312314,
           "title": "CATEGORIES",
-          "index": 1,
+          "index": 0,
           "sheetType": "GRID",
           "gridProperties": {
             "rowCount": 1000,

@@ -1,0 +1,9 @@
+{
+  "range": "CATEGORIES!A2:A101",
+  "majorDimension": "ROWS",
+  "values": [
+    [
+      "salary"
+    ]
+  ]
+}
