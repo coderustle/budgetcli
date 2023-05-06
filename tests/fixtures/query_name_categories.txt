@@ -1,1 +1,1 @@
-google.visualization.Query.setResponse({"version":"0.6","reqId":"0","status":"ok","sig":"1837046780","table":{"cols":[{"id":"A","label":"","type":"string"}],"rows":[{"c":[{"v":"salary"}]},{"c":[{"v":"salary"}]}],"parsedNumHeaders":0}});
+/*O_o*/\ngoogle.visualization.Query.setResponse({"version":"0.6","reqId":"0","status":"ok","sig":"1837046780","table":{"cols":[{"id":"A","label":"","type":"string"}],"rows":[{"c":[{"v":"salary"}]},{"c":[{"v":"salary"}]}],"parsedNumHeaders":0}});

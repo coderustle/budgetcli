@@ -176,12 +176,12 @@ async def test_get_records_rows_option(manager, categories_rows_response):
 
 
 @pytest.mark.asyncio
-async def test_get_records_by_name(manager, transactions_month_response):
+async def test_get_records_by_name(manager, categories_name_response):
     """Test get transactions for month"""
 
     mock_response = MagicMock()
     mock_response.raise_for_status.return_value = None
-    mock_response.text = transactions_month_response
+    mock_response.text = categories_name_response
 
     session_mock = AsyncMock()
     session_mock.get.return_value = mock_response
