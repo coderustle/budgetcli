@@ -223,7 +223,6 @@ class TransactionDataManager(AbstractDataManager):
         """Query the transactions for current month"""
         month -= 1  # month query starts from 0 to 11
         query = f"select A,B,C,D,E where month(A)={month}"
-
         sheet_index = get_config("transactions_sheet_index")
         index = int(sheet_index) if sheet_index else 1
         rows = await self._query(query, index)

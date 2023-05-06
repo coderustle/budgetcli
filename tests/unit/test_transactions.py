@@ -1,4 +1,4 @@
-from unittest.mock import patch, MagicMock
+from unittest.mock import patch, MagicMock, AsyncMock
 
 import pytest
 
@@ -8,6 +8,14 @@ from budgetcli.data_manager import ManagerFactory, AbstractDataManager
 @pytest.fixture
 def manager():
     return ManagerFactory.create_manager_for("transactions")
+
+
+@pytest.fixture
+def return_json_list(transactions_list_response):
+    def result():
+        return transactions_list_response
+
+    return result
 
 
 @pytest.fixture
@@ -139,13 +147,27 @@ async def test_append_method_with_no_values(manager):
 
 
 @pytest.mark.asyncio
-async def test_get_records(manager, transactions):
+async def test_get_records(manager, return_json_list):
     """Test get transactions method"""
-    with patch.object(AbstractDataManager, "_list") as mock_list:
-        mock_list.return_value = transactions
-        result = await manager.get_records()
-        assert result
-        assert len(result) == 2
+
+    # build url
+    params = "majorDimension=ROWS"
+    url = f"{manager.base_url}/values/TRANSACTIONS!A2:E101?{params}"
+
+    mock_response = MagicMock()
+    mock_response.raise_for_status.return_value = None
+    mock_response.json = return_json_list
+
+    session_mock = AsyncMock()
+    session_mock.get.return_value = mock_response
+
+    manager.session = session_mock
+
+    result = await manager.get_records()
+    
+    session_mock.get.assert_called_once_with(url)
+    mock_response.raise_for_status.assert_called_once()
+    assert result
 
 
 @pytest.mark.asyncio
@@ -158,15 +180,22 @@ async def test_get_records_rows_option(manager, transactions):
         assert len(result) == 1
 
 
-@pytest.mark.skip
+# @pytest.mark.skip
 @pytest.mark.asyncio
-async def test_get_records_for_month(manager, transactions):
+async def test_get_records_for_month(manager, transactions_month_response):
     """Test get transactions for month"""
-    expected = [
-        ["05-05-2023", "salary", "", 200.0, 0.0],
-        ["05-05-2023", "rent", "", 0.0, 50.0],
-    ]
-    with patch.object(AbstractDataManager, "_list") as mock_list:
-        mock_list.return_value = expected
-        result = await manager.get_records_for_month(month=5)
-        assert result
+
+    mock_response = MagicMock()
+    mock_response.raise_for_status.return_value = None
+    mock_response.text = transactions_month_response
+
+    session_mock = AsyncMock()
+    session_mock.get.return_value = mock_response
+
+    manager.session = session_mock
+
+    result = await manager.get_records_for_month(month=5)
+
+    session_mock.get.assert_called_once()
+    mock_response.raise_for_status.assert_called_once()
+    assert result
