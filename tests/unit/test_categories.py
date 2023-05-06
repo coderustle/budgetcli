@@ -175,7 +175,6 @@ async def test_get_records_rows_option(manager, categories_rows_response):
     assert len(result) == 1
 
 
-@pytest.mark.skip
 @pytest.mark.asyncio
 async def test_get_records_by_name(manager, categories_name_response):
     """Test get transactions for month"""
@@ -192,7 +191,6 @@ async def test_get_records_by_name(manager, categories_name_response):
     with patch("budgetcli.data_manager.get_config") as mock_config:
         mock_config.return_value = "0"
         result = await manager.get_records_by_name(name="Salary")
-
         session_mock.get.assert_called_once()
         mock_response.raise_for_status.assert_called_once()
         assert result
