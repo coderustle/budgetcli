@@ -42,13 +42,28 @@ class InitCommand(Command):
 class AddTransactionCommand(Command):
     def __init__(self, transaction: Transaction):
         self.transaction = transaction
-        self.manager = ManagerFactory.create_manager_for("transactions")
+        self.tra_manager = ManagerFactory.create_manager_for("transactions")
+        self.cat_manager = ManagerFactory.create_manager_for("categories")
+
+    async def add_transaction(self):
+        tra_row = self.transaction.to_sheet_row()
+        category_name = self.transaction.category
+
+        categories = await self.cat_manager.get_records_by_name(category_name)
+        if category_name in categories[0]:
+            await self.tra_manager.append(tra_row)
+        else:
+            category = Category(name=category_name)
+            row = category.to_sheet_row()
+            cat_task = asyncio.create_task(self.cat_manager.append(row))
+            tra_task = asyncio.create_task(self.tra_manager.append(tra_row))
+            await cat_task
+            await tra_task
 
     def execute(self):
         try:
             with task_progress(description="Processing.."):
-                row = self.transaction.to_sheet_row()
-                asyncio.run(self.manager.append(row))
+                asyncio.run(self.add_transaction())
                 print(":heavy_check_mark: Transaction was added successfully")
             pass
         except AttributeError:
