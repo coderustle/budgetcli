@@ -1,0 +1,13 @@
+{
+  "range": "TRANSACTIONS!A2:E101",
+  "majorDimension": "ROWS",
+  "values": [
+    [
+      "05-05-2023",
+      "salary",
+      "",
+      "200",
+      "0"
+    ]
+  ]
+}

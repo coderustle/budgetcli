@@ -1,0 +1,28 @@
+{
+  "sheets": [
+    {
+      "properties": {
+        "sheetId": 1008683812,
+        "title": "TRANSACTIONS",
+        "index": 0,
+        "sheetType": "GRID",
+        "gridProperties": {
+          "rowCount": 1000,
+          "columnCount": 26
+        }
+      }
+    },
+    {
+      "properties": {
+        "sheetId": 618128751,
+        "title": "CATEGORIES",
+        "index": 1,
+        "sheetType": "GRID",
+        "gridProperties": {
+          "rowCount": 1000,
+          "columnCount": 26
+        }
+      }
+    }
+  ]
+}
