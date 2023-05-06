@@ -174,6 +174,7 @@ async def test_get_records_rows_option(manager, categories_rows_response):
     response_mock.raise_for_status.assert_called_once()
     assert len(result) == 1
 
+
 @pytest.mark.skip
 @pytest.mark.asyncio
 async def test_get_records_by_name(manager, categories_name_response):
