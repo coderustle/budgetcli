@@ -45,6 +45,7 @@ budgetcli auth
 ```
 budgetcli init
 ```
+![](https://github.com/coderustle/budgetcli/blob/main/images/commands/init.gif)
 
 ## Usage
 
