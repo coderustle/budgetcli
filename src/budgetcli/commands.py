@@ -50,7 +50,7 @@ class AddTransactionCommand(Command):
         category_name = self.transaction.category
 
         categories = await self.cat_manager.get_records_by_name(category_name)
-        if category_name in categories[0]:
+        if categories and category_name in categories[0]:
             await self.tra_manager.append(tra_row)
         else:
             category = Category(name=category_name)
