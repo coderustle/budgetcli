@@ -32,12 +32,11 @@ async def test_init_sheet_exists(
 
     manager.session = session_mock
 
-    with patch("budgetcli.data_manager.update_config") as mock_config:
-        await manager.init()
-        mock_config.assert_called_once()
-        session_mock.get.assert_called_once()
-        session_mock.put.assert_called_once()
-        get_response_mock.raise_for_status.assert_called_once()
+    await manager.init()
+
+    session_mock.get.assert_called_once()
+    session_mock.put.assert_called_once()
+    get_response_mock.raise_for_status.assert_called_once()
 
 
 @pytest.mark.asyncio
@@ -68,17 +67,14 @@ async def test_init_sheet_create(
 
     manager.session = session_mock
 
-    with patch("budgetcli.data_manager.update_config") as mock_config:
-        await manager.init()
-        mock_config.assert_called_once()
-        url = f"{manager.base_url}/:batchUpdate"
-        data = {
-            "requests": [
-                {"addSheet": {"properties": {"title": "TRANSACTIONS"}}}
-            ]
-        }
-        session_mock.post.assert_called_once_with(url, json=data)
-        session_mock.put.assert_called_once()
+    await manager.init()
+
+    url = f"{manager.base_url}/:batchUpdate"
+    data = {
+        "requests": [{"addSheet": {"properties": {"title": "TRANSACTIONS"}}}]
+    }
+    session_mock.post.assert_called_once_with(url, json=data)
+    session_mock.put.assert_called_once()
 
 
 @pytest.mark.asyncio
@@ -196,9 +192,8 @@ async def test_get_records_for_month(manager, transactions_month_response):
 
     manager.session = session_mock
 
-    with patch("budgetcli.data_manager.get_config") as mock_config:
-        mock_config.return_value = "1"
-        result = await manager.get_records_for_month(month=5)
-        session_mock.get.assert_called_once()
-        mock_response.raise_for_status.assert_called_once()
-        assert result
+    result = await manager.get_records_for_month(month=5)
+
+    session_mock.get.assert_called_once()
+    mock_response.raise_for_status.assert_called_once()
+    assert result

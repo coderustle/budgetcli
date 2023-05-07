@@ -97,17 +97,19 @@ class AbstractDataManager(ABC, Generic[T]):
         return None
 
     async def _query(
-        self, query: str, sheet_index: int
+        self, query: str, sheet: str
     ) -> list[dict[str, list]] | None:
         """A method to use Google Visualization API"""
-        params = f"gid={sheet_index}&tq={query}&tqx=out:json"
+        params = f"sheet={sheet}&tq={query}&tqx=out:json"
         url = f"{self.gvi_url}?{params}"
+        print(url)
         response = await self.session.get(url)
         try:
             response.raise_for_status()
             to_replace = "/*O_o*/\ngoogle.visualization.Query.setResponse("
             clean_data = response.text.replace(to_replace, "")[:-2]
             json_data = json.loads(clean_data)
+            print(json_data)
             rows = json_data.get("table", {}).get("rows", [])
             return rows
         except httpx.HTTPStatusError as err:
@@ -212,9 +214,7 @@ class TransactionDataManager(AbstractDataManager):
         try:
             sheet = await asyncio.wait_for(sheet_coroutine, timeout=5)
             if sheet:
-                index = sheet["index"]
-                update_config("transactions_sheet_index", str(index))
-            await asyncio.wait_for(update_coroutine, timeout=5)
+                await asyncio.wait_for(update_coroutine, timeout=5)
         except asyncio.TimeoutError:
             print("Timeout error")
 
@@ -238,14 +238,9 @@ class TransactionDataManager(AbstractDataManager):
         """Query the transactions for current month"""
         month -= 1  # month query starts from 0 to 11
         query = f"select A,B,C,D,E where month(A)={month}"
-        index = get_config("transactions_sheet_index")
-        if index:
-            rows = await self._query(query, int(index))
-            transactions = [self._process_row(i) for i in rows] if rows else []
-            return transactions
-        else:
-            pprint(":warning: Transactions sheet index is missing")
-        return []
+        rows = await self._query(query, self.SHEET_NAME)
+        transactions = [self._process_row(i) for i in rows] if rows else []
+        return transactions
 
 
 class CategoryDataManager(AbstractDataManager):
@@ -264,9 +259,7 @@ class CategoryDataManager(AbstractDataManager):
         try:
             sheet = await asyncio.wait_for(sheet_coroutine, timeout=5)
             if sheet:
-                index = sheet["index"]
-                update_config("categories_sheet_index", str(index))
-            await asyncio.wait_for(update_coroutine, timeout=5)
+                await asyncio.wait_for(update_coroutine, timeout=5)
         except asyncio.TimeoutError:
             print("Timeout error")
 
@@ -290,14 +283,9 @@ class CategoryDataManager(AbstractDataManager):
         """Return a category by a given name"""
         name = name.lower()
         query = f"select A where A='{name}'"
-        index = get_config("categories_sheet_index")
-        if index:
-            rows = await self._query(query, int(index))
-            categories = [self._process_row(i) for i in rows] if rows else []
-            return categories
-        else:
-            pprint(":warning: Categories sheet index is missing")
-        return []
+        rows = await self._query(query, self.SHEET_NAME)
+        categories = [self._process_row(i) for i in rows] if rows else []
+        return categories
 
 
 class ManagerFactory:
