@@ -78,9 +78,7 @@ with default today date and without no description.
 ![](https://github.com/coderustle/budgetcli/blob/main/images/commands/outcome.gif)
 
 **Add an outcome with description**
-```bash
-budgetcli add outcome 600 Rent --date 2023-05-01 --description "Rent for April"
-```
+
 ![](https://github.com/coderustle/budgetcli/blob/main/images/commands/outcome-date.gif)
 
 ### List transactions
