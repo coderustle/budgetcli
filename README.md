@@ -26,7 +26,7 @@ Please follow the following link for more details: [Authorize credentials for a 
 
 Before start adding transactions and data, you need to do the following steps:
 
-**Provide the google spreadsheet id**
+**Provide Google spreadsheet id**
 ```
 budgetcli config spreadsheet-id ID
 ```
@@ -61,14 +61,19 @@ with default today date and without no description.
 ```bash
 budgetcli add income 5000 Salary
 ```
+![](https://github.com/coderustle/budgetcli/blob/main/images/commands/income.gif)
+
 **Add an income with description**
 ```bash
-budgetcli add income 500 projects --description "Project A"
+budgetcli add income 400 projects --description "Project A"
 ```
+![](https://github.com/coderustle/budgetcli/blob/main/images/commands/income-description.gif)
+
 **Add an income with date and description**
 ```bash
 budgetcli add income 500 projects --description "Project A" --date 2023-04-01
 ```
+![](https://github.com/coderustle/budgetcli/blob/main/images/commands/income-date.gif)
 
 ### Outcomes
 Same for outcome transactions, you need to provide only an amount and a category. By default, all the outcome transactions are added
@@ -78,19 +83,25 @@ with default today date and without no description.
 ```bash
 budgetcli add outcome 400 Rent
 ```
+![](https://github.com/coderustle/budgetcli/blob/main/images/commands/outcome.gif)
+
 ```bash
-budgetcli add outcome 400 Rent --date 2023-05-01 --description "Rent for April"
+budgetcli add outcome 600 Rent --date 2023-05-01 --description "Rent for April"
 ```
+![](https://github.com/coderustle/budgetcli/blob/main/images/commands/outcome-date.gif)
+
 ### List transactions
 **List transactions. Default first 100 rows**
 ```
 budgetcli list transactions 
 ```
+![](https://github.com/coderustle/budgetcli/blob/main/images/commands/transactions.gif)
 **List only first 10 transactions**
 
 ```bash
 budgetcli list transactions --rows 10 
 ```
+![](https://github.com/coderustle/budgetcli/blob/main/images/commands/transactions-rows.gif)
 
 **List transactions for a specific month**
 ```bash
