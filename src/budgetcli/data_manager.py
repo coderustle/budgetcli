@@ -102,14 +102,12 @@ class AbstractDataManager(ABC, Generic[T]):
         """A method to use Google Visualization API"""
         params = f"sheet={sheet}&tq={query}&tqx=out:json"
         url = f"{self.gvi_url}?{params}"
-        print(url)
         response = await self.session.get(url)
         try:
             response.raise_for_status()
             to_replace = "/*O_o*/\ngoogle.visualization.Query.setResponse("
             clean_data = response.text.replace(to_replace, "")[:-2]
             json_data = json.loads(clean_data)
-            print(json_data)
             rows = json_data.get("table", {}).get("rows", [])
             return rows
         except httpx.HTTPStatusError as err:
