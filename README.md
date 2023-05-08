@@ -58,14 +58,23 @@ To add an income you need to provide only an amount and a category. By default, 
 with default today date and without no description.
 
 **Add an income**
+```bash
+budgetcli add income 5000 salary
+```
 
 ![](https://github.com/coderustle/budgetcli/blob/main/images/commands/income.gif)
 
 **Add an income with description**
+```bash
+budgetcli add income 5000 projects --description "Project A"
+```
 
 ![](https://github.com/coderustle/budgetcli/blob/main/images/commands/income-description.gif)
 
 **Add an income with date and description**
+```bash
+budgetcli add income 500 projects --description "Project A" --date 2023-04-01
+```
 
 ![](https://github.com/coderustle/budgetcli/blob/main/images/commands/income-date.gif)
 
@@ -74,20 +83,32 @@ Same for outcome transactions, you need to provide only an amount and a category
 with default today date and without no description.
 
 **Add an outcome**
+```bash
+budgetcli add outcome 400 rent
+```
 
 ![](https://github.com/coderustle/budgetcli/blob/main/images/commands/outcome.gif)
 
 **Add an outcome with description**
+```bash
+budgetcli add 400 rent --date 2023-05-01 --description "Rent for May"
+```
 
 ![](https://github.com/coderustle/budgetcli/blob/main/images/commands/outcome-date.gif)
 
 ### List transactions
 
 **List first 100 transactions**
+```bash
+budgetcli list transactions
+```
 
 ![](https://github.com/coderustle/budgetcli/blob/main/images/commands/transactions.gif)
 
 **List only first 10 transactions**
+```bash
+budgetcli list transaction --rows 10
+```
 
 ![](https://github.com/coderustle/budgetcli/blob/main/images/commands/transactions-rows.gif)
 
