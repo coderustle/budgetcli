@@ -9,7 +9,7 @@ from rich.pretty import pprint
 
 from .auth import load_user_token
 from .settings import API_URL, GVI_URL
-from .utils.config import get_config, update_config
+from .utils.config import get_config
 
 T = TypeVar("T", bound="AbstractDataManager")
 
