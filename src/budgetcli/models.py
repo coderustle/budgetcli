@@ -106,3 +106,31 @@ class Category:
         Return a list with values
         """
         return [self.name]
+
+
+@dataclass
+class Budget:
+    month: date
+    category: Category
+    planned: Decimal = Decimal(0)
+    remained: Decimal = Decimal(0)
+
+    @classmethod
+    def from_sheet_row(cls, row: list):
+        parsed_date = validate_date(row[0])
+        if parsed_date:
+            return cls(
+                parsed_date,
+                row[1],  # category
+                Decimal(row[2]),  # planned
+                Decimal(row[3]),  # remained
+            )
+
+    def to_sheet_row(self):
+        date_format = "%d-%m-%y"
+        return [
+            self.month.strftime(date_format),
+            self.category,
+            self.planned,
+            self.remained,
+        ]
