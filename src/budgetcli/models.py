@@ -110,10 +110,10 @@ class Category:
 
 @dataclass
 class Budget:
-    month: date
-    category: Category
-    planned: Decimal = Decimal(0)
-    remained: Decimal = Decimal(0)
+    date: date
+    category: str
+    amount: Decimal = Decimal(0)
+    spent: Decimal = Decimal(0)
 
     @classmethod
     def from_sheet_row(cls, row: list):
@@ -129,8 +129,8 @@ class Budget:
     def to_sheet_row(self):
         date_format = "%d-%m-%y"
         return [
-            self.month.strftime(date_format),
+            self.date.strftime(date_format),
             self.category,
-            self.planned,
-            self.remained,
+            str(self.amount),
+            str(self.spent),
         ]

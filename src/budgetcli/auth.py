@@ -1,6 +1,6 @@
 """
 This module contains the implementation for get_credentials function used
-to autorize the application and to initiate the user that authorization flow.
+to authorize the application and to initiate the user that authorization flow.
 """
 import os
 
@@ -39,8 +39,6 @@ def get_user_authorization() -> ExCredentials | Credentials | None:
 
 def load_user_token() -> Credentials | None:
     """This function is used to get the user data authorization"""
-
-    credentials: Credentials | None = None
 
     # check if token.json exists in the app config dir
     if os.path.exists(AUTH_TOKEN_PATH):

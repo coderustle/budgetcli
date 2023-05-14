@@ -195,12 +195,10 @@ class AbstractDataManager(ABC, Generic[T]):
 
 class TransactionDataManager(AbstractDataManager):
     SHEET_NAME = "TRANSACTIONS"
-    FIRST_COLUMN = "A"
-    LAST_COLUMN = "E"
+    FIRST_COL = "A"
+    LAST_COL = "E"
     ROW_START = 2
-    TRANSACTIONS_RANGE = (
-        f"{SHEET_NAME}!{FIRST_COLUMN}{ROW_START}:{LAST_COLUMN}"
-    )
+    RANGE = f"{SHEET_NAME}!{FIRST_COL}{ROW_START}:{LAST_COL}"
     HEADERS = ["DATE", "CATEGORY", "DESCRIPTION", "INCOME", "OUTCOME"]
 
     async def init(self) -> None:
@@ -223,12 +221,12 @@ class TransactionDataManager(AbstractDataManager):
 
     async def append(self, values: list) -> dict[str, str]:
         """Add a transaction to the spreadsheet"""
-        result = await self._append(values=values, a1=self.TRANSACTIONS_RANGE)
+        result = await self._append(values=values, a1=self.RANGE)
         return result
 
     async def get_records(self, rows: int = 100) -> list[list[str]]:
         """List transactions. Default 100 rows"""
-        transaction_range = f"{self.TRANSACTIONS_RANGE}{rows + 1}"
+        transaction_range = f"{self.RANGE}{rows + 1}"
         result: list[list[str]] = await self._list(a1=transaction_range)
         return result if result else []
 
@@ -243,10 +241,10 @@ class TransactionDataManager(AbstractDataManager):
 
 class CategoryDataManager(AbstractDataManager):
     SHEET_NAME = "CATEGORIES"
-    FIRST_COLUMN = "A"
-    LAST_COLUMN = "A"
+    FIRST_COL = "A"
+    LAST_COL = "A"
     ROW_START = 2
-    CATEGORY_RANGE = f"{SHEET_NAME}!{FIRST_COLUMN}{ROW_START}:{LAST_COLUMN}"
+    RANGE = f"{SHEET_NAME}!{FIRST_COL}{ROW_START}:{LAST_COL}"
 
     async def init(self) -> None:
         """Create CATEGORY sheet if not exists"""
@@ -268,12 +266,12 @@ class CategoryDataManager(AbstractDataManager):
 
     async def append(self, values: list) -> dict[str, str]:
         """Add new category in Google sheet"""
-        result = await self._append(values=values, a1=self.CATEGORY_RANGE)
+        result = await self._append(values=values, a1=self.RANGE)
         return result
 
     async def get_records(self, rows: int = 100):
         """Return all categories"""
-        category_range = f"{self.CATEGORY_RANGE}{rows + 1}"
+        category_range = f"{self.RANGE}{rows + 1}"
         result: list[list[str]] = await self._list(a1=category_range)
         return result if result else []
 
@@ -286,6 +284,47 @@ class CategoryDataManager(AbstractDataManager):
         return categories
 
 
+class BudgetDataManager(AbstractDataManager):
+    SHEET_NAME = "BUDGET"
+    FIRST_COL = "A"
+    LAST_COL = "F"
+    ROW_START = 2
+    RANGE = f"{SHEET_NAME}!{FIRST_COL}{ROW_START}:{LAST_COL}"
+
+    async def init(self) -> None:
+        a1 = f"{self.SHEET_NAME}!A1"
+        headers = "DATE CATEGORY PLANNED REMAINED"
+        sheet_coroutine = self._get_sheet_or_create(self.SHEET_NAME)
+        update_coroutine = self._update(headers.split(), a1)
+        try:
+            sheet = await asyncio.wait_for(sheet_coroutine, timeout=5)
+            if sheet:
+                await asyncio.wait_for(update_coroutine, timeout=5)
+        except asyncio.TimeoutError:
+            print("Timeout error")
+
+    async def update(self, values: list[str], a1: str) -> dict[str, str]:
+        notation = f"{self.SHEET_NAME}!{a1}"
+        result = await self._update(values=values, a1=notation)
+        return result
+
+    async def append(self, values: list[str]) -> dict[str, str]:
+        result = await self._append(values=values, a1=self.RANGE)
+        return result
+
+    async def get_records(self, rows: int = 100):
+        budget_range = f"{self.RANGE}{rows + 1}"
+        result: list[list[str]] = await self._list(a1=budget_range)
+        return result if result else []
+
+    async def get_records_by_month(self, month: int) -> list[list[str]]:
+        month -= 1  # month query starts from 0
+        query = f"select A,B,C,D where month(A)={month}"
+        rows = await self._query(query, self.SHEET_NAME)
+        budgets = [self._process_row(i) for i in rows] if rows else []
+        return budgets
+
+
 class ManagerFactory:
     @staticmethod
     def create_manager_for(manager_name: str) -> T | None:
@@ -294,6 +333,8 @@ class ManagerFactory:
                 return TransactionDataManager()
             case "categories":
                 return CategoryDataManager()
+            case "budgets":
+                return BudgetDataManager()
             case _:
                 pprint("No manager found")
         return None

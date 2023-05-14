@@ -6,37 +6,61 @@ from decimal import Decimal
 
 import typer
 
-from ..commands import AddTransactionCommand, AddCategoryCommand
-from ..models import Transaction, Category, validate_amount, validate_date
+from ..commands import (
+    AddTransactionCommand,
+    AddCategoryCommand,
+    AddBudgetCommand,
+)
+from ..models import (
+    Transaction,
+    Category,
+    validate_amount,
+    validate_date,
+    Budget,
+)
 from ..utils.dates import get_today_date
 
 app = typer.Typer()
 
-DateArgument = typer.Option(
-    get_today_date(), help="The date of the transaction"
-)
-CategoryArgument = typer.Argument(..., help="The category of the transaction")
-DescriptionArgument = typer.Option("", help="Transaction description")
-AmountArgument = typer.Argument(..., help="The amount of the transaction")
+DateArgument = typer.Option(get_today_date())
+CategoryArgument = typer.Argument(...)
+DescriptionArgument = typer.Option("")
+AmountArgument = typer.Argument(...)
 
 
-@app.command()
-def category(name: str = CategoryArgument):
-    """Add a category to Google sheet"""
+@app.command(name="category")
+def category_entry(name: str = CategoryArgument):
+    """Add budget/transaction category"""
     if name:
         cat = Category(name)
         command = AddCategoryCommand(cat)
         command.execute()
 
 
-@app.command()
-def income(
+@app.command(name="budget")
+def budget_entry(
+    category: str = CategoryArgument,
+    amount: str = AmountArgument,
+    date: str = DateArgument,
+):
+    """Add budget for category"""
+    budget_entry_date: date_obj | None = validate_date(date)
+    budget_entry_amount: Decimal | None = validate_amount(amount)
+    if budget_entry_date and budget_entry_amount:
+        budget = Budget(date=budget_entry_date, category=category)
+        budget.amount = budget_entry_amount
+        command = AddBudgetCommand(budget)
+        command.execute()
+
+
+@app.command(name="income")
+def income_entry(
     amount: str = AmountArgument,
     category: str = CategoryArgument,
     description: str = DescriptionArgument,
     date: str = DateArgument,
 ):
-    """Add an income transaction to the Google sheet"""
+    """Add an income transaction"""
     parsed_date: date_obj | None = validate_date(date)
     parsed_amount: Decimal | None = validate_amount(amount)
 
@@ -47,14 +71,14 @@ def income(
         command.execute()
 
 
-@app.command()
-def outcome(
+@app.command(name="outcome")
+def outcome_entry(
     amount: str = AmountArgument,
     category: str = CategoryArgument,
     description: str = DescriptionArgument,
     date: str = DateArgument,
 ):
-    """Add an outcome transaction to the Google sheet"""
+    """Add an outcome transaction"""
     parsed_date: date_obj | None = validate_date(date)
     parsed_amount: Decimal | None = validate_amount(amount)
 
@@ -67,7 +91,7 @@ def outcome(
 
 @app.callback(invoke_without_command=True)
 def main(ctx: typer.Context):
-    """Add transactions to the Google sheet"""
+    """Add data to the Google sheet"""
     if not ctx.invoked_subcommand:
         ctx.get_help()
 

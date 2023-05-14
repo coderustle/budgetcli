@@ -4,7 +4,7 @@ from abc import ABC, abstractmethod
 from rich import print
 
 from .data_manager import ManagerFactory
-from .models import Transaction, Category
+from .models import Transaction, Category, Budget
 from .settings import CURRENCY
 from .utils.display import (
     get_transaction_table,
@@ -23,14 +23,17 @@ class InitCommand(Command):
     def __init__(self):
         self.tra_manager = ManagerFactory.create_manager_for("transactions")
         self.cat_manager = ManagerFactory.create_manager_for("categories")
+        self.bud_manager = ManagerFactory.create_manager_for("budgets")
 
     async def init(self) -> None:
         try:
             cat_task = asyncio.create_task(self.cat_manager.init())
             tra_task = asyncio.create_task(self.tra_manager.init())
+            bud_task = asyncio.create_task(self.bud_manager.init())
             with task_progress(description="Processing.."):
                 await cat_task
                 await tra_task
+                await bud_task
                 print(":heavy_check_mark: Init was completed successfully")
         except AttributeError:
             print("Init factory manager error")
@@ -131,3 +134,18 @@ class ListCategoryCommand(Command):
         except AttributeError:
             print("Init factory manager error")
         print(table)
+
+
+class AddBudgetCommand(Command):
+    def __init__(self, budget: Budget):
+        self.budget = budget
+        self.bud_manager = ManagerFactory.create_manager_for("budgets")
+
+    def execute(self) -> None:
+        try:
+            with task_progress(description="Processing.."):
+                row = self.budget.to_sheet_row()
+                asyncio.run(self.bud_manager.append(row))
+                print(":heavy_check_mark: Budget was added successfully")
+        except AttributeError:
+            print("Init factory manager error")

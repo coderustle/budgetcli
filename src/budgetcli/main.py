@@ -1,6 +1,7 @@
 import typer
 from rich import print
 
+from budgetcli.utils.dates import get_today_date
 from .auth import get_user_authorization
 from .cli import add, config, display
 from .commands import InitCommand
@@ -12,6 +13,11 @@ app = typer.Typer()
 app.add_typer(config.app, name="config")
 app.add_typer(add.app, name="add")
 app.add_typer(display.app, name="list")
+
+# aliases
+DateArgument = typer.Option(get_today_date())
+CategoryArgument = typer.Argument(...)
+AmountArgument = typer.Argument(...)
 
 
 @app.command()
