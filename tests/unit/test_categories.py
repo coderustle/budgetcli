@@ -1,4 +1,4 @@
-from unittest.mock import AsyncMock, MagicMock, patch
+from unittest.mock import AsyncMock, MagicMock
 
 import pytest
 
@@ -12,7 +12,7 @@ def manager():
 
 @pytest.mark.asyncio
 async def test_init_sheet_exists(
-    manager, categories_init_get_sheet, categories_update_response
+    manager, init_get_sheet, categories_update_response
 ):
     """Test get sheet in init"""
 
@@ -20,7 +20,7 @@ async def test_init_sheet_exists(
 
     get_response_mock = MagicMock()
     get_response_mock.raise_for_status.return_value = None
-    get_response_mock.json = categories_init_get_sheet
+    get_response_mock.json = init_get_sheet
 
     session_mock.get.return_value = get_response_mock
 

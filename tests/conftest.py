@@ -7,18 +7,6 @@ FIXTURES_FOLDER = Path(__file__).parent / "fixtures"
 
 
 @pytest.fixture
-def transactions_init_get_sheet():
-    file_path = FIXTURES_FOLDER / "get_transactions_sheet.json"
-
-    def json_response():
-        with file_path.open("rb") as f:
-            response = json.load(f)
-            return response
-
-    return json_response
-
-
-@pytest.fixture
 def transactions_init_create_sheet():
     file_path = FIXTURES_FOLDER / "create_transactions_sheet.json"
 
@@ -90,18 +78,6 @@ def transactions_month_response():
 
 
 @pytest.fixture
-def categories_init_get_sheet():
-    file_path = FIXTURES_FOLDER / "get_categories_sheet.json"
-
-    def json_response():
-        with file_path.open("rb") as f:
-            response = json.load(f)
-            return response
-
-    return json_response
-
-
-@pytest.fixture
 def categories_init_create_sheet():
     file_path = FIXTURES_FOLDER / "create_categories_sheet.json"
 
@@ -170,3 +146,27 @@ def categories_name_response():
         to_replace = "/*O_o*/\\ngoogle.visualization.Query.setResponse("
         replaced = "/*O_o*/\ngoogle.visualization.Query.setResponse("
         return content.replace(to_replace, replaced)
+
+
+@pytest.fixture
+def init_get_sheet():
+    file_path = FIXTURES_FOLDER / "get_sheet.json"
+
+    def json_response():
+        with file_path.open("rb") as f:
+            response = json.load(f)
+            return response
+
+    return json_response
+
+
+@pytest.fixture
+def budget_update_response():
+    file_path = FIXTURES_FOLDER / "update_budget.json"
+
+    def json_response():
+        with file_path.open("rb") as f:
+            response = json.load(f)
+            return response
+
+    return json_response

@@ -23,6 +23,18 @@
           "columnCount": 26
         }
       }
+    },
+    {
+      "properties": {
+        "sheetId": 618128751,
+        "title": "BUDGET",
+        "index": 2,
+        "sheetType": "GRID",
+        "gridProperties": {
+          "rowCount": 1000,
+          "columnCount": 26
+        }
+      }
     }
   ]
 }
