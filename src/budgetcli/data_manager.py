@@ -4,10 +4,9 @@ from abc import ABC, abstractmethod
 from typing import Coroutine, Generic, TypeVar
 
 import httpx
-from google.oauth2.credentials import Credentials
 from rich.pretty import pprint
 
-from .auth import load_user_token
+from .auth import get_auth_headers
 from .settings import API_URL, GVI_URL
 from .utils.config import get_config
 
@@ -16,22 +15,22 @@ T = TypeVar("T", bound="AbstractDataManager")
 SPREADSHEET_ID = get_config("spreadsheet_id")
 
 
+class Client(httpx.AsyncClient):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        self.headers.update(get_auth_headers())
+
+
 class AbstractDataManager(ABC, Generic[T]):
     """
     Abstract class for data managers
     """
 
-    PARAMS = [
-        "valueInputOption=USER_ENTERED",
-        "includeValuesInResponse=true",
-    ]
-
-    def __init__(self):
+    def __init__(self, session: Client):
+        self.session = session
         self.base_url = f"{API_URL}/{SPREADSHEET_ID}"
         self.gvi_url = f"{GVI_URL}/{SPREADSHEET_ID}/gviz/tq"
-        self.session = httpx.AsyncClient()
-        self.session.headers.update(self.get_auth_headers())
-        self.default_params = "?".join(self.PARAMS)
 
     @abstractmethod
     async def init(self) -> None:
@@ -49,7 +48,11 @@ class AbstractDataManager(ABC, Generic[T]):
     async def get_records(self, rows: int = 100):
         raise NotImplementedError
 
-    async def _update(self, values: list[str], a1: str) -> dict[str, str]:
+    async def _update(
+        self,
+        values: list[str],
+        a1: str,
+    ) -> dict[str, str]:
         """Update a row or a specific cell"""
         params = "valueInputOption=USER_ENTERED"
         url = f"{self.base_url}/values/{a1}?{params}"
@@ -182,15 +185,6 @@ class AbstractDataManager(ABC, Generic[T]):
             else:
                 records.append("")
         return records
-
-    @staticmethod
-    def get_auth_headers() -> dict:
-        """Get the authentication headers from Google credentials"""
-        headers: dict[str, str] = {}
-        credentials: Credentials | None = load_user_token()
-        if credentials:
-            credentials.apply(headers=headers)
-        return headers
 
 
 class TransactionDataManager(AbstractDataManager):
@@ -332,18 +326,3 @@ class BudgetDataManager(AbstractDataManager):
         rows = await self._query(query, self.SHEET_NAME)
         budgets = [self._process_row(i) for i in rows] if rows else []
         return budgets
-
-
-class ManagerFactory:
-    @staticmethod
-    def create_manager_for(manager_name: str) -> T | None:
-        match manager_name:
-            case "transactions":
-                return TransactionDataManager()
-            case "categories":
-                return CategoryDataManager()
-            case "budgets":
-                return BudgetDataManager()
-            case _:
-                pprint("No manager found")
-        return None

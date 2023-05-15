@@ -2,18 +2,11 @@ from unittest.mock import AsyncMock, MagicMock
 
 import pytest
 
-from budgetcli.data_manager import ManagerFactory
-
-
-@pytest.fixture
-def manager():
-    return ManagerFactory.create_manager_for("categories")
+from budgetcli.data_manager import CategoryDataManager
 
 
 @pytest.mark.asyncio
-async def test_init_sheet_exists(
-    manager, init_get_sheet, categories_update_response
-):
+async def test_init_sheet_exists(init_get_sheet, categories_update_response):
     """Test get sheet in init"""
 
     session_mock = AsyncMock()
@@ -30,7 +23,7 @@ async def test_init_sheet_exists(
 
     session_mock.put.return_value = put_response_mock
 
-    manager.session = session_mock
+    manager = CategoryDataManager(session=session_mock)
 
     await manager.init()
 
@@ -42,7 +35,7 @@ async def test_init_sheet_exists(
 
 @pytest.mark.asyncio
 async def test_init_sheet_create(
-    manager, categories_update_response, categories_init_create_sheet
+    categories_update_response, categories_init_create_sheet
 ):
     """Test init sheet create new sheet"""
 
@@ -66,7 +59,7 @@ async def test_init_sheet_create(
 
     session_mock.put.return_value = put_response_mock
 
-    manager.session = session_mock
+    manager = CategoryDataManager(session=session_mock)
 
     await manager.init()
 
@@ -79,7 +72,7 @@ async def test_init_sheet_create(
 
 
 @pytest.mark.asyncio
-async def test_update_method(manager, categories_update_response):
+async def test_update_method(categories_update_response):
     """Test update method"""
     headers = ["CATEGORY"]
 
@@ -90,7 +83,7 @@ async def test_update_method(manager, categories_update_response):
     session_mock = AsyncMock()
     session_mock.put.return_value = response_mock
 
-    manager.session = session_mock
+    manager = CategoryDataManager(session=session_mock)
 
     result = await manager.update(values=headers, a1="A1")
     params = "valueInputOption=USER_ENTERED"
@@ -106,7 +99,7 @@ async def test_update_method(manager, categories_update_response):
 
 
 @pytest.mark.asyncio
-async def test_append_method(manager, categories_append_response):
+async def test_append_method(categories_append_response):
     """Test update method"""
     values = ["Salary"]
 
@@ -117,7 +110,7 @@ async def test_append_method(manager, categories_append_response):
     session_mock = AsyncMock()
     session_mock.post.return_value = response_mock
 
-    manager.session = session_mock
+    manager = CategoryDataManager(session=session_mock)
 
     result = await manager.append(values=values)
     params = "valueInputOption=USER_ENTERED"
@@ -130,7 +123,7 @@ async def test_append_method(manager, categories_append_response):
 
 
 @pytest.mark.asyncio
-async def test_get_records(manager, categories_list_response):
+async def test_get_records(categories_list_response):
     """Test get transactions method"""
 
     mock_response = MagicMock()
@@ -140,7 +133,7 @@ async def test_get_records(manager, categories_list_response):
     session_mock = AsyncMock()
     session_mock.get.return_value = mock_response
 
-    manager.session = session_mock
+    manager = CategoryDataManager(session=session_mock)
 
     result = await manager.get_records()
 
@@ -153,7 +146,7 @@ async def test_get_records(manager, categories_list_response):
 
 
 @pytest.mark.asyncio
-async def test_get_records_rows_option(manager, categories_rows_response):
+async def test_get_records_rows_option(categories_rows_response):
     """Test get transactions with rows option"""
 
     response_mock = MagicMock()
@@ -163,7 +156,7 @@ async def test_get_records_rows_option(manager, categories_rows_response):
     session_mock = AsyncMock()
     session_mock.get.return_value = response_mock
 
-    manager.session = session_mock
+    manager = CategoryDataManager(session=session_mock)
 
     result = await manager.get_records(rows=1)
     params = "majorDimension=ROWS"
@@ -174,7 +167,7 @@ async def test_get_records_rows_option(manager, categories_rows_response):
 
 
 @pytest.mark.asyncio
-async def test_get_records_by_name(manager, categories_name_response):
+async def test_get_records_by_name(categories_name_response):
     """Test get transactions for month"""
 
     mock_response = MagicMock()
@@ -184,7 +177,7 @@ async def test_get_records_by_name(manager, categories_name_response):
     session_mock = AsyncMock()
     session_mock.get.return_value = mock_response
 
-    manager.session = session_mock
+    manager = CategoryDataManager(session=session_mock)
 
     result = await manager.get_records_by_name(name="Salary")
     session_mock.get.assert_called_once()

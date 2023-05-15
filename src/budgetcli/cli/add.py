@@ -1,6 +1,7 @@
 """
 This module contains the commands for adding transactions to the Google sheet
 """
+import asyncio
 from datetime import date as date_obj
 from decimal import Decimal
 
@@ -34,7 +35,7 @@ def category_entry(name: str = CategoryArgument):
     if name:
         cat = Category(name)
         command = AddCategoryCommand(cat)
-        command.execute()
+        asyncio.run(command.execute())
 
 
 @app.command(name="budget")
@@ -50,7 +51,7 @@ def budget_entry(
         budget = Budget(date=budget_entry_date, category=category)
         budget.amount = budget_entry_amount
         command = AddBudgetCommand(budget)
-        command.execute()
+        asyncio.run(command.execute())
 
 
 @app.command(name="income")
@@ -68,7 +69,7 @@ def income_entry(
         transaction = Transaction(parsed_date, category, description)
         transaction.income = parsed_amount
         command = AddTransactionCommand(transaction)
-        command.execute()
+        asyncio.run(command.execute())
 
 
 @app.command(name="outcome")
@@ -86,7 +87,7 @@ def outcome_entry(
         transaction = Transaction(parsed_date, category, description)
         transaction.outcome = parsed_amount
         command = AddTransactionCommand(transaction)
-        command.execute()
+        asyncio.run(command.execute())
 
 
 @app.callback(invoke_without_command=True)

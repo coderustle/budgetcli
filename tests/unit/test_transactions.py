@@ -2,18 +2,11 @@ from unittest.mock import MagicMock, AsyncMock
 
 import pytest
 
-from budgetcli.data_manager import ManagerFactory
-
-
-@pytest.fixture
-def manager():
-    return ManagerFactory.create_manager_for("transactions")
+from budgetcli.data_manager import TransactionDataManager
 
 
 @pytest.mark.asyncio
-async def test_init_sheet_exists(
-    manager, init_get_sheet, transactions_update_response
-):
+async def test_init_sheet_exists(init_get_sheet, transactions_update_response):
     """Test init sheet get sheet"""
 
     session_mock = AsyncMock()
@@ -30,7 +23,7 @@ async def test_init_sheet_exists(
 
     session_mock.put.return_value = put_response_mock
 
-    manager.session = session_mock
+    manager = TransactionDataManager(session=session_mock)
 
     await manager.init()
 
@@ -41,7 +34,7 @@ async def test_init_sheet_exists(
 
 @pytest.mark.asyncio
 async def test_init_sheet_create(
-    manager, transactions_init_create_sheet, transactions_update_response
+    transactions_init_create_sheet, transactions_update_response
 ):
     """Test init sheet create"""
 
@@ -65,7 +58,7 @@ async def test_init_sheet_create(
 
     session_mock.put.return_value = put_response_mock
 
-    manager.session = session_mock
+    manager = TransactionDataManager(session=session_mock)
 
     await manager.init()
 
@@ -78,7 +71,7 @@ async def test_init_sheet_create(
 
 
 @pytest.mark.asyncio
-async def test_update_method(manager, transactions_update_response):
+async def test_update_method(transactions_update_response):
     """Test transactions update method"""
     headers = "DATE CATEGORY DESCRIPTION INCOME OUTCOME"
 
@@ -89,7 +82,7 @@ async def test_update_method(manager, transactions_update_response):
     session_mock = AsyncMock()
     session_mock.put.return_value = response_mock
 
-    manager.session = session_mock
+    manager = TransactionDataManager(session=session_mock)
 
     result = await manager.update(values=headers.split(), a1="A1")
     params = "valueInputOption=USER_ENTERED"
@@ -105,7 +98,7 @@ async def test_update_method(manager, transactions_update_response):
 
 
 @pytest.mark.asyncio
-async def test_append_method(manager, transactions_append_response):
+async def test_append_method(transactions_append_response):
     """Test transactions append method with values"""
     values = "20-04-2023 category description 0 200"
 
@@ -116,7 +109,7 @@ async def test_append_method(manager, transactions_append_response):
     session_mock = AsyncMock()
     session_mock.post.return_value = response_mock
 
-    manager.session = session_mock
+    manager = TransactionDataManager(session=session_mock)
 
     result = await manager.append(values=values.split())
     params = "valueInputOption=USER_ENTERED"
@@ -132,12 +125,8 @@ async def test_append_method(manager, transactions_append_response):
 
 
 @pytest.mark.asyncio
-async def test_get_records(manager, transactions_list_response):
+async def test_get_records(transactions_list_response):
     """Test get transactions method"""
-
-    # build url
-    params = "majorDimension=ROWS"
-    url = f"{manager.base_url}/values/TRANSACTIONS!A2:E101?{params}"
 
     mock_response = MagicMock()
     mock_response.raise_for_status.return_value = None
@@ -146,7 +135,11 @@ async def test_get_records(manager, transactions_list_response):
     session_mock = AsyncMock()
     session_mock.get.return_value = mock_response
 
-    manager.session = session_mock
+    manager = TransactionDataManager(session=session_mock)
+
+    # build url
+    params = "majorDimension=ROWS"
+    url = f"{manager.base_url}/values/TRANSACTIONS!A2:E101?{params}"
 
     result = await manager.get_records()
 
@@ -157,12 +150,8 @@ async def test_get_records(manager, transactions_list_response):
 
 
 @pytest.mark.asyncio
-async def test_get_records_rows_option(manager, transactions_rows_response):
+async def test_get_records_rows_option(transactions_rows_response):
     """Test get transactions with rows option"""
-
-    # build url
-    params = "majorDimension=ROWS"
-    url = f"{manager.base_url}/values/TRANSACTIONS!A2:E2?{params}"
 
     response_mock = MagicMock()
     response_mock.raise_for_status.return_value = None
@@ -171,7 +160,11 @@ async def test_get_records_rows_option(manager, transactions_rows_response):
     session_mock = AsyncMock()
     session_mock.get.return_value = response_mock
 
-    manager.session = session_mock
+    manager = TransactionDataManager(session=session_mock)
+
+    # build url
+    params = "majorDimension=ROWS"
+    url = f"{manager.base_url}/values/TRANSACTIONS!A2:E2?{params}"
 
     result = await manager.get_records(rows=1)
     session_mock.get.assert_called_once_with(url)
@@ -180,7 +173,7 @@ async def test_get_records_rows_option(manager, transactions_rows_response):
 
 
 @pytest.mark.asyncio
-async def test_get_records_for_month(manager, transactions_month_response):
+async def test_get_records_for_month(transactions_month_response):
     """Test get transactions for month"""
 
     mock_response = MagicMock()
@@ -190,7 +183,7 @@ async def test_get_records_for_month(manager, transactions_month_response):
     session_mock = AsyncMock()
     session_mock.get.return_value = mock_response
 
-    manager.session = session_mock
+    manager = TransactionDataManager(session=session_mock)
 
     result = await manager.get_records_for_month(month=5)
 

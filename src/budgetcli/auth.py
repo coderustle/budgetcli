@@ -59,3 +59,12 @@ def load_user_token() -> Credentials | None:
         return credentials
 
     return None
+
+
+def get_auth_headers() -> dict:
+    """Get the authentication headers from Google credentials"""
+    headers = {}
+    credentials: Credentials | None = load_user_token()
+    if credentials:
+        credentials.apply(headers=headers)
+    return headers

@@ -2,18 +2,11 @@ from unittest.mock import AsyncMock, MagicMock
 
 import pytest
 
-from budgetcli.data_manager import ManagerFactory
-
-
-@pytest.fixture()
-def manager():
-    return ManagerFactory.create_manager_for("budgets")
+from budgetcli.data_manager import BudgetDataManager
 
 
 @pytest.mark.asyncio
-async def test_init_sheet_exists(
-    manager, init_get_sheet, budget_update_response
-):
+async def test_init_sheet_exists(init_get_sheet, budget_update_response):
     """Test init sheet get sheet"""
     session_mock = AsyncMock()
 
@@ -29,7 +22,7 @@ async def test_init_sheet_exists(
 
     session_mock.put.return_value = put_response_mock
 
-    manager.session = session_mock
+    manager = BudgetDataManager(session=session_mock)
 
     await manager.init()
 

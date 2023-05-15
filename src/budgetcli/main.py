@@ -1,3 +1,4 @@
+import asyncio
 import typer
 from rich import print
 
@@ -35,7 +36,7 @@ def auth():
 def init():
     """Init the sheets in the Google spreadsheets"""
     command = InitCommand()
-    command.execute()
+    asyncio.run(command.execute())
 
 
 @app.callback(invoke_without_command=True)

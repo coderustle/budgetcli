@@ -1,3 +1,4 @@
+import asyncio
 import calendar
 import typer
 
@@ -40,7 +41,7 @@ MonthOption = typer.Option(
 def categories(rows: int = RowsOption, name: str = NameOption):
     """List all categories from spreadsheet"""
     command = ListCategoryCommand(rows=rows, name=name)
-    command.execute()
+    asyncio.run(command.execute())
 
 
 @app.command()
@@ -48,7 +49,7 @@ def transactions(rows: int = RowsOption, month: str = MonthOption):
     """List all transactions from spreadsheet"""
     month_number = dates.get_month_number(month)
     command = ListTransactionCommand(rows, month_number)
-    command.execute()
+    asyncio.run(command.execute())
 
 
 @app.command()
