@@ -32,17 +32,17 @@ budgetcli config spreadsheet-id ID
 ```
 
 **Copy the client_secret_XXX.json to app config**
-```
+```bash
 budgetcli config credentials-file-path /path/to/client_secret.json
 ```
 
 **Authorize the app access to spreadsheet data**
-```
+```bash
 budgetcli auth
 ```
 
 **Init sheets and tables**
-```
+```bash
 budgetcli init
 ```
 ![](https://github.com/coderustle/budgetcli/blob/main/images/commands/init.gif)
@@ -50,7 +50,7 @@ budgetcli init
 ## Usage
 
 The commands follow the below structure.
-```
+```bash
 budgetcli <VERB> <OBJECT> <OPTIONS>
 ```
 ### Incomes
