@@ -4,7 +4,6 @@ from abc import ABC, abstractmethod
 from rich import print
 
 from .data_manager import (
-    ManagerFactory,
     Client,
     TransactionDataManager,
     CategoryDataManager,
@@ -116,11 +115,11 @@ class ListTransactionCommand(Command):
             manager = TransactionDataManager(session)
             with task_progress(description="Processing.."):
                 if self.month:
-                    get = manager.get_records_for_month(self.month)
-                    transactions = asyncio.run(get)
+                    transactions = await manager.get_records_for_month(
+                        self.month
+                    )
                 else:
-                    get = manager.get_records(self.rows)
-                    transactions = asyncio.run(get)
+                    transactions = await manager.get_records(self.rows)
                 for row in transactions:
                     income = f"{CURRENCY} {row[3]}"
                     outcome = f"{CURRENCY} {row[4]}"
@@ -132,7 +131,6 @@ class ListCategoryCommand(Command):
     def __init__(self, rows: int, name: str):
         self.rows = rows
         self.name = name
-        self.manager = ManagerFactory.create_manager_for("categories")
 
     async def execute(self) -> None:
         table = get_category_table()
