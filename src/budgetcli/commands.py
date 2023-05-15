@@ -141,11 +141,23 @@ class AddBudgetCommand(Command):
         self.budget = budget
         self.bud_manager = ManagerFactory.create_manager_for("budgets")
 
+    async def add_budget(self):
+        row = self.budget.to_sheet_row()
+        cat = self.budget.category
+        month = self.budget.date.month
+        rows = await self.bud_manager.get_records_by_month_and_category(
+            month=month, cat=cat
+        )
+        if rows and cat in rows[0]:
+            # budget with the given category already exists
+            print("You already budgeted this category for the given month")
+        else:
+            await self.bud_manager.append(row)
+
     def execute(self) -> None:
         try:
             with task_progress(description="Processing.."):
-                row = self.budget.to_sheet_row()
-                asyncio.run(self.bud_manager.append(row))
+                asyncio.run(self.add_budget())
                 print(":heavy_check_mark: Budget was added successfully")
         except AttributeError:
             print("Init factory manager error")

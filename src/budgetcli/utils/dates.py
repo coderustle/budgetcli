@@ -3,7 +3,7 @@ from datetime import datetime
 
 
 def get_current_month():
-    """An utility function to return the current month number"""
+    """A utility function to return the current month number"""
     now = datetime.now()
     return now.month
 

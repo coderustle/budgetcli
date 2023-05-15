@@ -115,6 +115,9 @@ class Budget:
     amount: Decimal = Decimal(0)
     spent: Decimal = Decimal(0)
 
+    def __post_init__(self):
+        self.category = self.category.lower()
+
     @classmethod
     def from_sheet_row(cls, row: list):
         parsed_date = validate_date(row[0])

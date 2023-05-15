@@ -324,6 +324,15 @@ class BudgetDataManager(AbstractDataManager):
         budgets = [self._process_row(i) for i in rows] if rows else []
         return budgets
 
+    async def get_records_by_month_and_category(
+        self, month: int, cat: str
+    ) -> list[list[str]]:
+        month -= 1  # month array starts from 0
+        query = f"select A,B,C,D where month(A)={month} and B contains '{cat}'"
+        rows = await self._query(query, self.SHEET_NAME)
+        budgets = [self._process_row(i) for i in rows] if rows else []
+        return budgets
+
 
 class ManagerFactory:
     @staticmethod
