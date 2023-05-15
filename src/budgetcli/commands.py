@@ -27,13 +27,13 @@ class InitCommand(Command):
 
     async def init(self) -> None:
         try:
-            cat_task = asyncio.create_task(self.cat_manager.init())
-            tra_task = asyncio.create_task(self.tra_manager.init())
-            bud_task = asyncio.create_task(self.bud_manager.init())
+            tasks = [
+                self.tra_manager.init(),
+                self.cat_manager.init(),
+                self.bud_manager.init(),
+            ]
             with task_progress(description="Processing.."):
-                await cat_task
-                await tra_task
-                await bud_task
+                await asyncio.gather(*tasks)
                 print(":heavy_check_mark: Init was completed successfully")
         except AttributeError:
             print("Init factory manager error")
@@ -58,10 +58,8 @@ class AddTransactionCommand(Command):
         else:
             category = Category(name=category_name)
             row = category.to_sheet_row()
-            cat_task = asyncio.create_task(self.cat_manager.append(row))
-            tra_task = asyncio.create_task(self.tra_manager.append(tra_row))
-            await cat_task
-            await tra_task
+            tasks = [self.cat_manager.append(row), self.tra_manager(tra_row)]
+            await asyncio.gather(*tasks)
 
     def execute(self):
         try:
