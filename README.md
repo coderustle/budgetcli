@@ -25,6 +25,7 @@ In order to use the app you need first to enable Google Spreadsheet API. Please 
 Before start adding transactions and data, you need to do the following steps:
 
 **Provide Google spreadsheet id**
+
 The spreadsheet id can be found in the browser url, for example `https://docs.google.com/spreadsheets/d/SPREADSHEET_ID/edit#gid=2121817768`. 
 ```
 budgetcli config spreadsheet-id ID
