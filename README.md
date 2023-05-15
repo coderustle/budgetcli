@@ -7,9 +7,11 @@ A simple terminal app written in Python to manage budgets and expenses in Google
 ## Features
 
 - Add income transactions 
-- Add outcome transactions 
-- List transactions by month
+- Add outcome transactions
 - Add spending categories
+- Add budget for category
+- List spending categories
+- List transactions by month
 
 ## Installation
 
@@ -17,16 +19,13 @@ A simple terminal app written in Python to manage budgets and expenses in Google
 pip install budgetcli
 ```
 
-In order to use the app you need first to enable Google Spreadsheet API and to generate app credentials with a
-`client_id` and a `client_secret`.
-
-Please follow the following link for more details: [Authorize credentials for a desktop application](https://developers.google.com/sheets/api/quickstart/python)
+In order to use the app you need first to enable Google Spreadsheet API. Please follow this link for more details: [Authorize credentials for a desktop application](https://developers.google.com/sheets/api/quickstart/python)
 
 ## Configuration
-
 Before start adding transactions and data, you need to do the following steps:
 
 **Provide Google spreadsheet id**
+The spreadsheet id can be found in the browser url, for example `https://docs.google.com/spreadsheets/d/SPREADSHEET_ID/edit#gid=2121817768`. 
 ```
 budgetcli config spreadsheet-id ID
 ```
@@ -41,7 +40,7 @@ budgetcli config credentials-file-path /path/to/client_secret.json
 budgetcli auth
 ```
 
-**Init sheet tables headers**
+**Init sheets and tables**
 ```
 budgetcli init
 ```
