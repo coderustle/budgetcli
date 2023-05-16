@@ -45,7 +45,6 @@ budgetcli auth
 ```bash
 budgetcli init
 ```
-![](https://github.com/coderustle/budgetcli/blob/main/images/commands/init.gif)
 
 ## Usage
 
@@ -62,21 +61,15 @@ with default today date and without no description.
 budgetcli add income 5000 salary
 ```
 
-![](https://github.com/coderustle/budgetcli/blob/main/images/commands/income.gif)
-
 **Add an income with description**
 ```bash
 budgetcli add income 5000 projects --description "Project A"
 ```
 
-![](https://github.com/coderustle/budgetcli/blob/main/images/commands/income-description.gif)
-
 **Add an income with date and description**
 ```bash
 budgetcli add income 500 projects --description "Project A" --date 2023-04-01
 ```
-
-![](https://github.com/coderustle/budgetcli/blob/main/images/commands/income-date.gif)
 
 ### Outcomes
 Same for outcome transactions, you need to provide only an amount and a category. By default, all the outcome transactions are added
@@ -87,14 +80,10 @@ with default today date and without no description.
 budgetcli add outcome 400 rent
 ```
 
-![](https://github.com/coderustle/budgetcli/blob/main/images/commands/outcome.gif)
-
 **Add an outcome with description**
 ```bash
 budgetcli add 400 rent --date 2023-05-01 --description "Rent for May"
 ```
-
-![](https://github.com/coderustle/budgetcli/blob/main/images/commands/outcome-date.gif)
 
 ### List transactions
 
@@ -103,14 +92,10 @@ budgetcli add 400 rent --date 2023-05-01 --description "Rent for May"
 budgetcli list transactions
 ```
 
-![](https://github.com/coderustle/budgetcli/blob/main/images/commands/transactions.gif)
-
 **List only first 10 transactions**
 ```bash
 budgetcli list transaction --rows 10
 ```
-
-![](https://github.com/coderustle/budgetcli/blob/main/images/commands/transactions-rows.gif)
 
 **List transactions for a specific month**
 ```bash
