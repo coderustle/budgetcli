@@ -40,8 +40,8 @@ def category_entry(name: str = CategoryArgument):
 
 @app.command(name="budget")
 def budget_entry(
-    category: str = CategoryArgument,
     amount: str = AmountArgument,
+    category: str = CategoryArgument,
     date: str = DateArgument,
 ):
     """Add budget for category"""

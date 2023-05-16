@@ -101,3 +101,9 @@ budgetcli list transaction --rows 10
 ```bash
 budgetcli list transactions --month April 
 ```
+### Budget
+
+**Add budget for category**
+```bash
+budgetcli add budget 400 rent
+```
