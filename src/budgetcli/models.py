@@ -53,6 +53,8 @@ class Transaction:
     description: str
     income: Decimal = Decimal(0)
     outcome: Decimal = Decimal(0)
+    month = "=MONTH(TRANSACTIONS!A2:A)"
+    year = "=YEAR(TRANSACTIONS!A2:A)"
 
     @classmethod
     def from_sheet_row(cls, row: list):
@@ -80,6 +82,8 @@ class Transaction:
             self.description,
             str(self.income),
             str(self.outcome),
+            self.month,
+            self.year,
         ]
 
 
@@ -108,12 +112,22 @@ class Category:
         return [self.name]
 
 
+# Google sheet formula to update budget categories
+SUM = "TRANSACTIONS!E2:E"
+CHECK1 = "TRANSACTIONS!B2:B"
+IF1 = 'CONCAT("=";B2:B)'
+CHECK2 = "TRANSACTIONS!F2:F"
+IF2 = 'CONCAT("=";MONTH(A2:A))'
+CHECK3 = "TRANSACTIONS!G2:G"
+IF3 = 'CONCAT("=";YEAR(A2:A))'
+
+
 @dataclass
 class Budget:
     date: date
     category: str
     amount: Decimal = Decimal(0)
-    spent: Decimal = Decimal(0)
+    spent = f"=SUMIFS({SUM};{CHECK1};{IF1};{CHECK2};{IF2};{CHECK3};{IF3})"
 
     def __post_init__(self):
         self.category = self.category.lower()
@@ -126,7 +140,7 @@ class Budget:
                 parsed_date,
                 row[1],  # category
                 Decimal(row[2]),  # planned
-                Decimal(row[3]),  # remained
+                Decimal(row[3]),  # spent
             )
 
     def to_sheet_row(self):

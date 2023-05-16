@@ -198,7 +198,7 @@ class TransactionDataManager(AbstractDataManager):
     async def init(self) -> None:
         """Create TRANSACTIONS sheet if not exists"""
         a1 = f"{self.SHEET_NAME}!A1"
-        headers = "DATE CATEGORY DESCRIPTION INCOME OUTCOME"
+        headers = "DATE CATEGORY DESCRIPTION INCOME OUTCOME MONTH YEAR"
         sheet_coroutine: Coroutine = self._get_sheet_or_create(self.SHEET_NAME)
         update_coroutine: Coroutine = self._update(headers.split(), a1)
         try:
