@@ -287,7 +287,7 @@ class BudgetDataManager(AbstractDataManager):
 
     async def init(self) -> None:
         a1 = f"{self.SHEET_NAME}!A1"
-        headers = "DATE CATEGORY PLANNED REMAINED"
+        headers = "DATE CATEGORY PLANNED SPENT"
         sheet_coroutine = self._get_sheet_or_create(self.SHEET_NAME)
         update_coroutine = self._update(headers.split(), a1)
         try:
