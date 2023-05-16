@@ -20,6 +20,7 @@ class Client(httpx.AsyncClient):
         super().__init__(*args, **kwargs)
 
         self.headers.update(get_auth_headers())
+        self.timeout = 30.0  # default timeout
 
 
 class AbstractDataManager(ABC, Generic[T]):
@@ -202,9 +203,9 @@ class TransactionDataManager(AbstractDataManager):
         sheet_coroutine: Coroutine = self._get_sheet_or_create(self.SHEET_NAME)
         update_coroutine: Coroutine = self._update(headers.split(), a1)
         try:
-            sheet = await asyncio.wait_for(sheet_coroutine, timeout=5)
+            sheet = await asyncio.wait_for(sheet_coroutine, timeout=30.0)
             if sheet:
-                await asyncio.wait_for(update_coroutine, timeout=5)
+                await asyncio.wait_for(update_coroutine, timeout=30.0)
         except asyncio.TimeoutError:
             print("Timeout error")
 
@@ -247,9 +248,9 @@ class CategoryDataManager(AbstractDataManager):
         sheet_coroutine: Coroutine = self._get_sheet_or_create(self.SHEET_NAME)
         update_coroutine: Coroutine = self._update([headers], a1)
         try:
-            sheet = await asyncio.wait_for(sheet_coroutine, timeout=5)
+            sheet = await asyncio.wait_for(sheet_coroutine, timeout=30.0)
             if sheet:
-                await asyncio.wait_for(update_coroutine, timeout=5)
+                await asyncio.wait_for(update_coroutine, timeout=30.0)
         except asyncio.TimeoutError:
             print("Timeout error")
 
@@ -291,9 +292,9 @@ class BudgetDataManager(AbstractDataManager):
         sheet_coroutine = self._get_sheet_or_create(self.SHEET_NAME)
         update_coroutine = self._update(headers.split(), a1)
         try:
-            sheet = await asyncio.wait_for(sheet_coroutine, timeout=5)
+            sheet = await asyncio.wait_for(sheet_coroutine, timeout=30.0)
             if sheet:
-                await asyncio.wait_for(update_coroutine, timeout=5)
+                await asyncio.wait_for(update_coroutine, timeout=30.0)
         except asyncio.TimeoutError:
             print("Timeout error")
 
